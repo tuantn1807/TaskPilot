@@ -33,7 +33,7 @@ require (
 	github.com/pion/datachannel v1.6.2
 	github.com/pion/dtls/v3 v3.1.5
 	github.com/pion/ice/v4 v4.4.0
-	github.com/pion/interceptor v0.1.47
+	github.com/pion/interceptor v0.1.48
 	github.com/pion/rtcp v1.2.17
 	github.com/pion/rtp v1.10.5
 	github.com/pion/sctp v1.11.1
@@ -45,7 +45,7 @@ require (
 	github.com/prometheus/client_golang v1.24.1
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/rs/cors v1.11.1
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.1
 	github.com/thoas/go-funk v0.9.3
 	github.com/tomnomnom/linkheader v0.0.0-20250811210735-e5fe3b51442e
 	github.com/twitchtv/twirp v8.1.3+incompatible
@@ -107,7 +107,6 @@ require (
 	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/docker/go-connections v0.7.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
