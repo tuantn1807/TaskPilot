@@ -171,7 +171,7 @@ jobs:
           node-version: '22'
       - run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader --no-scripts
       - run: rm -rf public/build
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: frontend-build
           path: public/build

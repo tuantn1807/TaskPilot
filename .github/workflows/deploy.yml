@@ -30,7 +30,7 @@ jobs:
           coverage: none
       - run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader --no-scripts
       - run: rm -rf public/build
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: frontend-build
           path: public/build
@@ -61,7 +61,7 @@ jobs:
       HEALTH_URL: ${{ vars.HEALTH_URL }}
       RELEASE_ID: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: release-${{ github.sha }}
       - name: Configure verified SSH connection
