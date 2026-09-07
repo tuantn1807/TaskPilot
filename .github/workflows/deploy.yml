@@ -39,7 +39,7 @@ jobs:
           bash scripts/ci/package-release.sh "$RUNNER_TEMP/release.tar.gz"
           cd "$RUNNER_TEMP"
           sha256sum release.tar.gz > release.tar.gz.sha256
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-${{ github.sha }}
           path: |

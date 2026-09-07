@@ -69,7 +69,7 @@ jobs:
           php artisan migrate:fresh --force
           php artisan migrate:rollback --force
           php artisan migrate --force
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: php-test-results-${{ matrix.database }}
@@ -87,7 +87,7 @@ jobs:
       # Legacy Mix pulls node-sass 4; Vite uses optional native packages instead.
       - run: npm ci --ignore-scripts
       - run: npm run vite:build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: frontend-build
           path: public/build/
@@ -112,7 +112,7 @@ jobs:
       - name: AI coverage
         if: always()
         run: python -m coverage xml -o test-results/ai-coverage.xml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ai-test-results
@@ -135,7 +135,7 @@ jobs:
         working-directory: webrtc
       - run: go test -race -short -timeout 15m -coverprofile=coverage.out ./...
         working-directory: webrtc
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: go-coverage
@@ -195,7 +195,7 @@ jobs:
           tests/browser/node_modules/.bin/playwright install --with-deps chromium
       - name: Browser smoke tests
         run: tests/browser/node_modules/.bin/playwright test --config tests/browser/playwright.config.cjs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: production-smoke-results
