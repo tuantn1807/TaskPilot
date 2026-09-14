@@ -1,6 +1,6 @@
 module github.com/livekit/livekit-server
 
-go 1.26
+go 1.26.0
 
 require (
 	github.com/bep/debounce v1.2.1
@@ -55,7 +55,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	go.uber.org/zap v1.28.0
 	golang.org/x/mod v0.38.0
-	golang.org/x/sync v0.22.0
+	golang.org/x/sync v0.23.0
 	google.golang.org/protobuf v1.36.11
 	gopkg.in/yaml.v3 v3.0.1
 )
