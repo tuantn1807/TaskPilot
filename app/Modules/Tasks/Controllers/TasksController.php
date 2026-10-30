@@ -291,6 +291,9 @@ class TasksController extends Controller
     {
         $data = $request->validate([
             'status' => ['required', 'string', 'max:100'],
+            'order_index' => ['nullable', 'integer', 'min:0'],
+            'ordered_task_ids' => ['nullable', 'array', 'max:500'],
+            'ordered_task_ids.*' => ['integer'],
             'approval_signature' => ['nullable', 'string', 'max:255'],
             'approval_role' => ['nullable', 'string', 'max:50'],
             'worklog_hours' => ['nullable', 'numeric', 'min:0.1', 'max:24'],
@@ -312,7 +315,25 @@ class TasksController extends Controller
             }
         }
 
-        $this->updateTaskHandler->handle($task, ['status' => $data['status']]);
+        $updatePayload = ['status' => $data['status']];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('tasks', 'order_index') && isset($data['order_index'])) {
+            $updatePayload['order_index'] = (int) $data['order_index'];
+        }
+
+        $this->updateTaskHandler->handle($task, $updatePayload);
+
+        if (
+            !empty($data['ordered_task_ids'])
+            && is_array($data['ordered_task_ids'])
+            && \Illuminate\Support\Facades\Schema::hasColumn('tasks', 'order_index')
+        ) {
+            foreach (array_values($data['ordered_task_ids']) as $index => $orderedTaskId) {
+                Task::query()
+                    ->where('id', (int) $orderedTaskId)
+                    ->when($task->project_id, fn ($q) => $q->where('project_id', $task->project_id))
+                    ->update(['order_index' => $index]);
+            }
+        }
 
         return response()->json([
             'success' => true,

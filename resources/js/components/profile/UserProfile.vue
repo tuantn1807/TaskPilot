@@ -301,7 +301,7 @@
               <div class="ai-explain-box">
                 <i class="fa fa-info-circle text-indigo"></i>
                 <span>
-                  Khi quản lý tạo công việc mới, AI sẽ quét tiêu đề, mô tả và thành phần dự án để so khớp với <strong>Kỹ năng</strong> của bạn.
+                  Khi quản lý tạo công việc mới, AI sẽ quét tiêu đề, mô tả và thành phần dự án để phân tích mức độ liên quan với <strong>Kỹ năng</strong> của bạn.
                 </span>
               </div>
 

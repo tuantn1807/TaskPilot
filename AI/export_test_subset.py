@@ -377,6 +377,8 @@ def load_users_for_projects(
 def attach_user_projects_and_skills(users: dict[str, dict], issues: list[dict], project_keys: set[str]) -> None:
     skills: dict[str, Counter] = defaultdict(Counter)
     seen_projects: dict[str, set[str]] = defaultdict(set)
+    user_task_counts: dict[str, int] = defaultdict(int)
+
     for issue in issues:
         project = issue["projectname"]
         for field in ("assignee", "reporter"):
@@ -384,13 +386,55 @@ def attach_user_projects_and_skills(users: dict[str, dict], issues: list[dict], 
             if not name or name not in users:
                 continue
             seen_projects[name].add(project)
+            if field == "assignee":
+                user_task_counts[name] += 1
             for skill in issue.get("components") or []:
                 skills[name][skill[:80]] += 1
+
+    seniority_map = {1: "Junior", 2: "Mid-level", 3: "Senior", 4: "Lead", 5: "Principal"}
 
     for username, record in users.items():
         record["projects"] = sorted((record.get("projects") or set()) | seen_projects.get(username, set()) | set())
         record["projects"] = [key for key in record["projects"] if key in project_keys]
-        record["skills"] = [name for name, _ in skills[username].most_common(6)]
+        top_skills = skills[username].most_common(6)
+        record["skills"] = [name for name, _ in top_skills]
+
+        primary_skill = record["skills"][0] if record["skills"] else "Software Engineer"
+        record["job_title"] = primary_skill
+        record["department"] = record["projects"][0] if record["projects"] else "Engineering"
+        record["historical_completed_count"] = user_task_counts.get(username, 0)
+
+        skills_detail = []
+        user_tasks = record["historical_completed_count"]
+        if user_tasks >= 15:
+            base_lvl, base_yrs = 5, 5
+        elif user_tasks >= 5:
+            base_lvl, base_yrs = 4, 3
+        elif user_tasks >= 2:
+            base_lvl, base_yrs = 3, 2
+        else:
+            base_lvl, base_yrs = 2, 1
+
+        for rank_idx, (s_name, s_count) in enumerate(top_skills):
+            if rank_idx == 0:
+                lvl = base_lvl
+                yrs = base_yrs
+            else:
+                offset = 1 if rank_idx % 2 == 1 else 2
+                lvl = max(1, base_lvl - offset)
+                yrs = max(1, base_yrs - offset)
+
+            skills_detail.append({
+                "name": s_name,
+                "count": s_count,
+                "level": lvl,
+                "years": yrs,
+                "proficiency_percent": lvl * 20,
+            })
+        record["skills_detail"] = skills_detail
+        top_lvl = skills_detail[0]["level"] if skills_detail else 2
+        record["seniority"] = seniority_map.get(top_lvl, "Mid-level")
+        record["experience_years"] = max((s["years"] for s in skills_detail), default=1)
 
 
 def main() -> int:
@@ -467,7 +511,13 @@ def main() -> int:
                 "display_name": record["display_name"],
                 "active": bool(record["active"]),
                 "projects": record["projects"],
+                "job_title": record.get("job_title") or "Contributor",
+                "department": record.get("department") or "Engineering",
+                "seniority": record.get("seniority") or "Mid-level",
+                "experience_years": record.get("experience_years", 1),
+                "historical_completed_count": record.get("historical_completed_count", 0),
                 "skills": record.get("skills") or [],
+                "skills_detail": record.get("skills_detail") or [],
             }
             for record in users.values()
         ],

@@ -156,6 +156,13 @@ class AiRecommendationService
             ->pluck('active_count', 'assignee_id');
         $formattedCandidates = $candidateUsers->map(function (User $user) use ($workloads) {
             $skills = $user->skills ? $user->skills->pluck('skill_name')->toArray() : [];
+            $skillsDetail = $user->skills ? $user->skills->map(function ($s) {
+                return [
+                    'name' => $s->skill_name,
+                    'level' => (int) ($s->proficiency_level ?? 3),
+                    'years' => (int) ($s->years_experience ?? 1),
+                ];
+            })->toArray() : [];
 
             return [
                 'id' => $user->id,
@@ -166,6 +173,7 @@ class AiRecommendationService
                 'department' => $user->department ?? '',
                 'status' => $user->status ?? 'active',
                 'skills' => $skills,
+                'skills_detail' => $skillsDetail,
                 'active_tasks_count' => (int) ($workloads[$user->id] ?? 0),
             ];
         })->toArray();
@@ -246,7 +254,7 @@ class AiRecommendationService
             }
 
             $matchedUser = $this->matchCandidateUser($candidateUsers, $item);
-            $formatted = $this->formatRecommendationForUi($item, $matchedUser, $index + 1);
+            $formatted = $this->formatRecommendationForUi($item, $matchedUser, $index + 1, $taskData);
             if ($formatted === null) {
                 continue;
             }
@@ -301,7 +309,7 @@ class AiRecommendationService
     /**
      * Shape a recommendation for TaskCreate.vue (name, user_id, job_title, ...).
      */
-    protected function formatRecommendationForUi(array $item, ?User $matchedUser, int $rank): ?array
+    protected function formatRecommendationForUi(array $item, ?User $matchedUser, int $rank, array $taskData = []): ?array
     {
         if (!$matchedUser) {
             return null;
@@ -340,6 +348,109 @@ class AiRecommendationService
             return null;
         }
 
+        $itemDetails = $item['details'] ?? [];
+        $matchedSkillNames = array_map('strtolower', $itemDetails['matched_skills'] ?? []);
+        $hintSkillNames = array_map('strtolower', $itemDetails['hint_skills'] ?? []);
+
+        $levelMap = [
+            1 => ['label' => 'Sơ cấp', 'percent' => 20],
+            2 => ['label' => 'Cơ bản', 'percent' => 40],
+            3 => ['label' => 'Khá', 'percent' => 60],
+            4 => ['label' => 'Giỏi', 'percent' => 80],
+            5 => ['label' => 'Chuyên gia', 'percent' => 100],
+        ];
+
+        // Format candidate skills
+        $userSkills = [];
+        if ($matchedUser->skills) {
+            foreach ($matchedUser->skills as $sk) {
+                $sName = $sk->skill_name;
+                $sNameLower = strtolower($sName);
+                $lvl = (int) ($sk->proficiency_level ?? 3);
+                $lvlInfo = $levelMap[$lvl] ?? ['label' => "Cấp $lvl", 'percent' => $lvl * 20];
+
+                $isDirect = in_array($sNameLower, $matchedSkillNames, true);
+                $isHint = in_array($sNameLower, $hintSkillNames, true);
+
+                $relevance = 0;
+                $relevanceLabel = 'Kỹ năng phụ trợ';
+                if ($isDirect) {
+                    $relevance = 100;
+                    $relevanceLabel = 'Liên quan trực tiếp';
+                } elseif ($isHint) {
+                    $relevance = 85;
+                    $relevanceLabel = 'Lĩnh vực liên quan';
+                }
+
+                $userSkills[] = [
+                    'id' => $sk->id,
+                    'name' => $sName,
+                    'level' => $lvl,
+                    'level_label' => $lvlInfo['label'],
+                    'proficiency_percent' => $lvlInfo['percent'],
+                    'years' => $sk->years_experience,
+                    'is_matched' => $isDirect,
+                    'is_hint' => $isHint,
+                    'relevance_percent' => $relevance,
+                    'relevance_label' => $relevanceLabel,
+                ];
+            }
+            usort($userSkills, function ($a, $b) {
+                if ($b['relevance_percent'] !== $a['relevance_percent']) {
+                    return $b['relevance_percent'] <=> $a['relevance_percent'];
+                }
+                return $b['proficiency_percent'] <=> $a['proficiency_percent'];
+            });
+        }
+
+        // Project task history for candidate (completed tasks)
+        $projectId = !empty($taskData['project_id']) ? (int) $taskData['project_id'] : null;
+        $historyTasks = [];
+        if ($projectId) {
+            $currentTaskId = !empty($taskData['task_id']) ? (int) $taskData['task_id'] : null;
+            $histQuery = Task::query()
+                ->where('project_id', $projectId)
+                ->where('assignee_id', $matchedUser->id)
+                ->when($currentTaskId, fn($q) => $q->where('id', '!=', $currentTaskId));
+
+            // Only count tasks that have been finished as true history
+            $doneHist = (clone $histQuery)
+                ->whereIn('status', ['done', 'completed', 'resolved', 'closed'])
+                ->latest('id')
+                ->limit(15)
+                ->get(['id', 'name', 'status', 'issue_type', 'priority', 'created_at']);
+
+            $historyTasks = $doneHist->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'name' => $task->name,
+                    'status' => $task->status,
+                    'issue_type' => $task->issue_type,
+                    'priority' => $task->priority,
+                    'created_at' => $task->created_at ? $task->created_at->format('d/m/Y') : null,
+                ];
+            })->toArray();
+        }
+
+        // Active tasks of candidate
+        $activeTasksList = Task::query()
+            ->where('assignee_id', $matchedUser->id)
+            ->whereNotIn('status', ['done', 'closed', 'completed'])
+            ->latest('id')
+            ->limit(10)
+            ->get(['id', 'name', 'status', 'issue_type', 'priority', 'project_id'])
+            ->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'name' => $task->name,
+                    'status' => $task->status,
+                    'issue_type' => $task->issue_type,
+                    'priority' => $task->priority,
+                    'project_id' => $task->project_id,
+                ];
+            })
+            ->toArray();
+
         return [
             'user_id' => $userId,
             'name' => $name,
@@ -347,11 +458,16 @@ class AiRecommendationService
             'email' => $email,
             'avatar' => $avatar,
             'job_title' => $jobTitle,
+            'department' => $matchedUser->department ?? null,
             'score' => $score,
             'confidence_percent' => $confidence ?? (int) round($score * 100),
             'rank_position' => $rank,
             'match_reasons' => $matchReasons,
             'active_tasks_count' => $activeTasks ?? 0,
+            'skills' => $userSkills,
+            'history_tasks' => $historyTasks,
+            'active_tasks' => $activeTasksList,
+            'details' => $itemDetails,
         ];
     }
 
@@ -377,17 +493,30 @@ class AiRecommendationService
     protected function historyTasksForProject(int $projectId): Collection
     {
         if (!isset($this->projectHistoryCache[$projectId])) {
-            $this->projectHistoryCache[$projectId] = Task::query()
+            $baseQuery = Task::query()
                 ->with(['assignee', 'skills'])
                 ->where('project_id', $projectId)
                 ->whereNotNull('assignee_id')
                 ->where(function ($query) {
                     $query->whereNull('labels')
                         ->orWhere('labels', 'not like', '%ai-test%');
-                })
+                });
+
+            // Prioritize tasks that were actually completed (done/completed/resolved/closed)
+            $doneTasks = (clone $baseQuery)
+                ->whereIn('status', ['done', 'completed', 'resolved', 'closed'])
                 ->latest('id')
                 ->limit(self::HISTORY_LIMIT)
                 ->get();
+
+            if ($doneTasks->isNotEmpty()) {
+                $this->projectHistoryCache[$projectId] = $doneTasks;
+            } else {
+                $this->projectHistoryCache[$projectId] = $baseQuery
+                    ->latest('id')
+                    ->limit(self::HISTORY_LIMIT)
+                    ->get();
+            }
         }
 
         return $this->projectHistoryCache[$projectId];

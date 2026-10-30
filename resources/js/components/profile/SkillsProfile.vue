@@ -4,7 +4,7 @@
     <div class="header-card">
       <div class="header-content">
         <div class="ai-badge">
-          <i class="fa fa-magic text-purple"></i> THUẬT TOÁN KHỚP NỐI AI (AI ASSIGNEE RECOMMENDER)
+          <i class="fa fa-magic text-purple"></i> THUẬT TOÁN GỢI Ý PHÂN CÔNG AI (AI ASSIGNEE RECOMMENDER)
         </div>
         <h1>Hồ Sơ Kỹ Năng Cá Nhân</h1>
         <p>
@@ -183,7 +183,7 @@
             <div class="ai-explain-box">
               <i class="fa fa-info-circle text-indigo"></i>
               <span>
-                Khi quản lý tạo công việc mới, AI sẽ quét tiêu đề, mô tả và thành phần dự án để so khớp với <strong>Kỹ năng</strong> của bạn.
+                Khi quản lý tạo công việc mới, AI sẽ quét tiêu đề, mô tả và thành phần dự án để phân tích mức độ liên quan với <strong>Kỹ năng</strong> của bạn.
               </span>
             </div>
 

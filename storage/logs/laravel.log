@@ -172,3 +172,5 @@
     },
     "socket": null
 }  
+[2026-10-30 12:03:18] local.WARNING: Notification dispatch failed: The "tls" scheme is not supported; supported schemes for mailer "smtp" are: "smtp", "smtps".  
+[2026-10-30 12:03:59] local.WARNING: Notification dispatch failed: The "tls" scheme is not supported; supported schemes for mailer "smtp" are: "smtp", "smtps".  

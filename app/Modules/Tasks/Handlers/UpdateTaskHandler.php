@@ -29,7 +29,7 @@ class UpdateTaskHandler
     {
         $update = [];
         $fields = [
-            'name', 'description', 'status', 'priority', 'project_id',
+            'name', 'description', 'status', 'order_index', 'priority', 'project_id',
             'days', 'hours', 'issue_type', 'assignee_id', 'reporter_id',
             'start_date', 'end_date', 'due_date', 'story_points', 'labels',
             'sprint', 'parent_id', 'sprint_id',

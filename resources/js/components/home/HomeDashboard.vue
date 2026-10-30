@@ -163,7 +163,7 @@
               <span class="ai-sparkle-badge"><i class="fa fa-magic"></i></span>
               <div>
                 <h3 class="m-0">AI Gợi Ý Hôm Nay</h3>
-                <p class="text-muted text-xs mb-0">Hệ thống khớp nối công việc thông minh</p>
+                <p class="text-muted text-xs mb-0">Hệ thống gợi ý phân bổ công việc thông minh</p>
               </div>
             </div>
           </div>

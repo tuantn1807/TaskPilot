@@ -238,19 +238,36 @@ class ImportDatasetTestCommand extends Command
             $user->username = $username;
             $user->full_name = $display;
             $user->status = !empty($row['active']) ? 'active' : 'inactive';
-            $user->job_title = $this->clip($row['skills'][0] ?? 'Contributor', 120);
-            $user->department = $this->clip($row['projects'][0] ?? 'Dataset', 80);
+            $user->job_title = $this->clip($row['job_title'] ?? ($row['skills'][0] ?? 'Contributor'), 120);
+            $user->department = $this->clip($row['department'] ?? ($row['projects'][0] ?? 'Dataset'), 80);
             $user->save();
 
-            if (!empty($row['skills']) && Schema::hasTable('user_skills')) {
-                foreach (array_slice($row['skills'], 0, 6) as $skill) {
+            if (!empty($row['skills_detail']) && Schema::hasTable('user_skills')) {
+                foreach ($row['skills_detail'] as $sd) {
+                    $sName = $this->clip($sd['name'] ?? '', 80);
+                    if ($sName === '') {
+                        continue;
+                    }
+                    UserSkill::updateOrCreate(
+                        ['user_id' => $user->id, 'skill_name' => $sName],
+                        [
+                            'proficiency_level' => (int) ($sd['level'] ?? 3),
+                            'years_experience' => (int) ($sd['years'] ?? 1),
+                        ]
+                    );
+                }
+            } elseif (!empty($row['skills']) && Schema::hasTable('user_skills')) {
+                foreach (array_slice($row['skills'], 0, 6) as $idx => $skill) {
                     $skill = $this->clip($skill, 80);
                     if ($skill === '') {
                         continue;
                     }
-                    UserSkill::firstOrCreate(
+                    $isPrimary = $user->job_title && stripos($user->job_title, $skill) !== false;
+                    $level = $isPrimary ? 5 : max(1, 4 - $idx);
+                    $years = $isPrimary ? 4 : max(1, 4 - $idx);
+                    UserSkill::updateOrCreate(
                         ['user_id' => $user->id, 'skill_name' => $skill],
-                        ['proficiency_level' => 3]
+                        ['proficiency_level' => $level, 'years_experience' => $years]
                     );
                 }
             }

@@ -13,7 +13,7 @@ class Task extends Model
         'user_id',
         'days',
         'hours',
-        'company_id', 'description', 'status', 'priority', 'issue_type', 'assignee_id', 'reporter_id',
+        'company_id', 'description', 'status', 'order_index', 'priority', 'issue_type', 'assignee_id', 'reporter_id',
         'issue_key',
         'due_date', 'start_date', 'end_date', 'story_points', 'labels', 'sprint', 'parent_id', 'sprint_id',
         'test_result', 'test_status', 'approved_by', 'approved_at', 'approval_signature', 'approval_role',

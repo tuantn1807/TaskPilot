@@ -224,7 +224,15 @@ class Project extends Model
         return $this->morphMany('ProjectsManager\Comment', 'commentable');
     }
 
-    public function tasks() { return $this->hasMany(Task::class); }
+    public function tasks()
+    {
+        $relation = $this->hasMany(Task::class);
+        if (\Illuminate\Support\Facades\Schema::hasColumn('tasks', 'order_index')) {
+            $relation->orderBy('order_index')->orderBy('id');
+        }
+
+        return $relation;
+    }
     public function category() { return $this->belongsTo(ProjectCategory::class); }
     public function team() { return $this->belongsTo(Team::class); }
     public function sprints() { return $this->hasMany(Sprint::class); }

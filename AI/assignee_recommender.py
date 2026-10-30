@@ -253,6 +253,11 @@ def normalize(value) -> str:
     return "" if value.lower() in {"nan", "none", "null"} else value
 
 
+SHORT_TECH_TOKENS = {
+    "ui", "ux", "js", "ts", "qa", "qc", "ci", "cd", "db", "ai", "ml", "go", "os", "ip", "io", "s3",
+}
+
+
 def tokenize(value: str) -> list[str]:
     return TOKEN_PATTERN.findall(normalize(value).lower())
 
@@ -261,7 +266,9 @@ def content_tokens(*parts) -> set[str]:
     tokens = set()
     for part in parts:
         tokens.update(
-            token for token in tokenize(str(part or "")) if token not in GENERIC_TOKENS and len(token) > 2
+            token
+            for token in tokenize(str(part or ""))
+            if token not in GENERIC_TOKENS and (len(token) > 2 or token in SHORT_TECH_TOKENS)
         )
     return tokens
 
@@ -292,15 +299,25 @@ def skill_matches(
 
 def domain_hint_skills(issue_tokens: set[str], skills: list[str], job_title: str) -> list[str]:
     """Return candidate skills supported by domain keywords in the issue."""
-    haystack = {normalize(skill) for skill in skills if normalize(skill)}
-    job = normalize(job_title)
+    raw_skills = [normalize(skill) for skill in skills if normalize(skill)]
+    job = normalize(job_title).lower()
     hits = []
     for hints, skill_names in DOMAIN_HINTS:
         if not (issue_tokens & hints):
             continue
-        for skill in skill_names:
-            if skill in haystack or skill == job:
-                hits.append(skill)
+        for skill_name in skill_names:
+            sn_lower = skill_name.lower()
+            for s in raw_skills:
+                s_lower = s.lower()
+                tokens = set(re.findall(r"[a-zA-Z0-9]+", s_lower))
+                if (
+                    sn_lower == s_lower
+                    or (len(sn_lower) >= 3 and sn_lower in s_lower)
+                    or sn_lower in tokens
+                ):
+                    hits.append(s)
+            if job and (sn_lower == job or (len(sn_lower) >= 3 and sn_lower in job)):
+                hits.append(job_title)
     return list(dict.fromkeys(hits))
 
 
@@ -1148,6 +1165,7 @@ def format_recommendation(
     job_title: str = "",
     active_tasks_count: int = 0,
     active: bool = True,
+    details: dict | None = None,
 ) -> dict:
     """Payload keys expected by TaskCreate.vue and AiRecommendationService."""
     if user:
@@ -1176,6 +1194,7 @@ def format_recommendation(
         "confidence_percent": int(round(score * 100)),
         "active": bool(active),
         "match_reasons": match_reasons or [],
+        "details": details or {},
     }
 
 
@@ -1186,6 +1205,7 @@ VUE_RECOMMENDATION_FIELDS = (
     "active_tasks_count",
     "confidence_percent",
     "match_reasons",
+    "details",
 )
 
 
@@ -1376,15 +1396,12 @@ def hybrid_recommendations(
         pipeline = get_hybrid_pipeline(model_path=model_path, model_type=model_type)
 
     candidate_features = []
-    semantic_sims = []
-    if pipeline is None:
-        semantic_sims = compute_profile_similarities(
-            task_full_text,
-            candidate_profiles,
-            use_sklearn=bool(use_model),
-        )
+    semantic_sims = compute_profile_similarities(
+        task_full_text,
+        candidate_profiles,
+        use_sklearn=bool(use_model),
+    )
 
-    scored = []
     for idx, (user, username, skills, user_history) in enumerate(candidates_data):
         matched_skills = [
             skill
@@ -1418,106 +1435,139 @@ def hybrid_recommendations(
         elif workload >= 5:
             workload_penalty = min(0.35, (workload - 4) * 0.05)
 
-        if pipeline is not None:
-            cand_profile_str = candidate_profiles[idx]
-            feature_row = [
-                task_full_text,
-                cand_profile_str,
-                float(len(matched_skills)),
-                float(len(hint_skills)),
-                float(len(overlap)),
-                float(len(user_history)),
-                float(type_matches),
-                float(workload),
-            ]
-            candidate_features.append(
-                (feature_row, user, skills, matched_skills, hint_skills, job_hits, overlap, user_history, workload)
-            )
-        else:
-            semantic_sim = semantic_sims[idx] if idx < len(semantic_sims) else 0.0
-            content_raw = (
-                (3.5 * semantic_sim)
-                + (4.0 * history_score)
-                + (1.5 * len(matched_skills))
-                + (1.1 * len(hint_skills))
-                + (0.4 * len(job_hits))
-            )
-            raw = (
-                content_raw
-                + (0.25 * min(type_matches, 3))
-                + experience
-                + availability_bonus
-                - workload_penalty
-            )
-            if raw <= 0:
-                continue
+        semantic_sim = semantic_sims[idx] if idx < len(semantic_sims) else 0.0
+        content_raw = (
+            (3.5 * semantic_sim)
+            + (4.0 * history_score)
+            + (1.5 * len(matched_skills))
+            + (1.1 * len(hint_skills))
+            + (0.4 * len(job_hits))
+        )
+        heuristic_raw = (
+            content_raw
+            + (0.25 * min(type_matches, 3))
+            + experience
+            + availability_bonus
+            - workload_penalty
+        )
 
-            reasons = []
-            if semantic_sim >= 0.15:
-                reasons.append(f"Độ phù hợp ngữ nghĩa ({int(round(semantic_sim * 100))}%) với nội dung task")
-            if overlap:
-                sample = ", ".join(sorted(overlap)[:4])
-                reasons.append(f"Lịch sử {len(user_history)} việc tương tự trong dự án ({sample})")
-            if matched_skills:
-                reasons.append(f"Kỹ năng khớp nội dung: {', '.join(matched_skills[:3])}")
-            if hint_skills:
-                reasons.append(f"Phù hợp domain chuyên môn: {', '.join(hint_skills[:3])}")
-            if job_hits and user.get("job_title"):
-                reasons.append(f"Chuyên môn {user.get('job_title')} phù hợp yêu cầu")
-            if workload == 0:
-                reasons.append("Đang trống việc (0 task), sẵn sàng nhận việc ngay")
-            elif workload <= 2:
-                reasons.append(f"Tải công việc nhẹ ({workload} task đang xử lý)")
-            elif workload >= 5:
-                reasons.append(f"Đã điều chỉnh điểm do tải công việc cao ({workload} task)")
-            if not reasons and user_history:
-                reasons.append(f"Đã xử lý {len(user_history)} việc trong dự án")
-            if not reasons:
-                reasons.append("Khớp tín hiệu nội dung công việc")
+        cand_profile_str = candidate_profiles[idx]
+        feature_row = [
+            task_full_text,
+            cand_profile_str,
+            float(len(matched_skills)),
+            float(len(hint_skills)),
+            float(len(overlap)),
+            float(len(user_history)),
+            float(type_matches),
+            float(workload),
+        ]
+        candidate_features.append(
+            (
+                feature_row,
+                user,
+                skills,
+                matched_skills,
+                hint_skills,
+                job_hits,
+                overlap,
+                user_history,
+                workload,
+                semantic_sim,
+                content_raw,
+                heuristic_raw,
+            )
+        )
 
-            scored.append((raw, content_raw <= 0, user, reasons))
-
+    probs = [0.0] * len(candidate_features)
+    is_ranker = False
     if pipeline is not None and candidate_features:
         X_matrix = [item[0] for item in candidate_features]
         try:
             probs = pipeline.predict_proba(X_matrix)[:, 1]
         except Exception:
             probs = [0.5] * len(candidate_features)
-
         is_ranker = isinstance(pipeline, LGBMRankerPipeline) or "ranker" in type(pipeline).__name__.lower()
 
-        for p_val, (feat, user, skills, matched_skills, hint_skills, job_hits, overlap, user_history, workload) in zip(probs, candidate_features):
-            model_prob = float(p_val)
-            raw = model_prob * 3.5
-            if raw <= 0.01:
-                continue
-            reasons = []
-            if model_prob >= 0.5:
-                if is_ranker:
-                    reasons.append(f"Mô hình Học Xếp Hạng (LambdaMART / LightGBM) đánh giá tối ưu ({int(round(model_prob * 100))}%)")
-                else:
-                    reasons.append(f"Mô hình Hybrid (ColumnTransformer) dự đoán phù hợp ({int(round(model_prob * 100))}%)")
-            if matched_skills:
-                reasons.append(f"Kỹ năng khớp nội dung: {', '.join(matched_skills[:3])}")
-            if hint_skills:
-                reasons.append(f"Phù hợp domain chuyên môn: {', '.join(hint_skills[:3])}")
-            if job_hits and user.get("job_title"):
-                reasons.append(f"Chuyên môn {user.get('job_title')} phù hợp yêu cầu")
-            if overlap:
-                sample = ", ".join(sorted(overlap)[:4])
-                reasons.append(f"Lịch sử {len(user_history)} việc tương tự trong dự án ({sample})")
+    any_content_match = any(
+        (len(c[3]) > 0 or len(c[4]) > 0 or len(c[6]) > 0 or c[9] >= 0.15)
+        for c in candidate_features
+    )
+
+    scored = []
+    for p_val, (feat, user, skills, matched_skills, hint_skills, job_hits, overlap, user_history, workload, semantic_sim, content_raw, heuristic_raw) in zip(probs, candidate_features):
+        model_prob = float(p_val)
+        if pipeline is not None:
+            raw = (model_prob * 2.2) + max(0.0, heuristic_raw)
+        else:
+            raw = heuristic_raw
+
+        if raw <= 0:
+            continue
+
+        is_fallback = (
+            not matched_skills
+            and not hint_skills
+            and not overlap
+            and semantic_sim < 0.15
+        )
+
+        level_map = {1: "Sơ cấp 20%", 2: "Cơ bản 40%", 3: "Khá 60%", 4: "Giỏi 80%", 5: "Chuyên gia 100%"}
+        skills_detail = user.get("skills_detail") or []
+
+        def _format_skill(skill_name: str) -> str:
+            prof_str = ""
+            for sd in skills_detail:
+                if isinstance(sd, dict) and sd.get("name", "").lower() == skill_name.lower():
+                    lvl = int(sd.get("level") or 3)
+                    lvl_lbl = level_map.get(lvl, f"{lvl * 20}%")
+                    yrs = sd.get("years")
+                    exp_info = f", {yrs} năm KN" if yrs else ""
+                    prof_str = f" (Thành thạo: {lvl_lbl}{exp_info})"
+                    break
+            return f"{skill_name}{prof_str}"
+
+        reasons = []
+        if semantic_sim >= 0.15:
+            reasons.append(f"Độ liên quan ngữ nghĩa ({int(round(semantic_sim * 100))}%) với nội dung công việc")
+        if matched_skills:
+            formatted_matched = [_format_skill(s) for s in matched_skills[:3]]
+            reasons.append(f"Kỹ năng liên quan trực tiếp: {', '.join(formatted_matched)}")
+        if hint_skills:
+            formatted_hints = [_format_skill(h) for h in hint_skills[:3]]
+            reasons.append(f"Lĩnh vực chuyên môn liên quan: {', '.join(formatted_hints)}")
+        if job_hits and user.get("job_title"):
+            reasons.append(f"Chuyên môn {user.get('job_title')} liên quan đến yêu cầu")
+        if overlap:
+            sample = ", ".join(sorted(overlap)[:4])
+            reasons.append(f"Lịch sử {len(user_history)} việc tương tự đã hoàn thành trong dự án ({sample})")
+
+        # XAI for Workload / Availability
+        if is_fallback:
+            if any_content_match:
+                reasons.append(f"Ứng viên dự phòng: Đang trống việc ({workload} task), sẵn sàng nhận việc (chưa có kỹ năng/lịch sử tương đương)")
+            else:
+                reasons.append(f"Đề xuất theo tải công việc: Đang trống việc ({workload} task), sẵn sàng nhận việc mới")
+        else:
             if workload == 0:
-                reasons.append("Đang trống việc (0 task), sẵn sàng nhận việc ngay")
+                reasons.append("Sẵn sàng nhận việc ngay (0 task đang xử lý)")
             elif workload <= 2:
                 reasons.append(f"Tải công việc nhẹ ({workload} task đang xử lý)")
             elif workload >= 5:
                 reasons.append(f"Đã điều chỉnh điểm do tải công việc cao ({workload} task)")
-            if not reasons and user_history:
-                reasons.append(f"Đã xử lý {len(user_history)} việc trong dự án")
-            if not reasons:
-                reasons.append("Khớp tín hiệu nội dung công việc")
 
-            scored.append((raw, False, user, reasons))
+        if not reasons and user_history:
+            reasons.append(f"Đã hoàn thành {len(user_history)} việc trong dự án")
+        if not reasons:
+            reasons.append("Liên quan tín hiệu nội dung công việc")
+
+        cand_details = {
+            "matched_skills": list(matched_skills),
+            "hint_skills": list(hint_skills),
+            "job_hits": list(job_hits),
+            "overlap_keywords": sorted(list(overlap)),
+        }
+        scored.append((raw, is_fallback, user, reasons, cand_details))
 
     if not scored:
         return []
@@ -1527,7 +1577,7 @@ def hybrid_recommendations(
     total = sum(weights) or 1.0
     scorer_count = len(scored)
     ranked = []
-    for weight, (raw, fallback, user, reasons) in zip(weights, scored):
+    for weight, (raw, fallback, user, reasons, cand_details) in zip(weights, scored):
         ranked.append(
             format_recommendation(
                 user=user,
@@ -1535,6 +1585,7 @@ def hybrid_recommendations(
                 name=user.get("full_name") or user.get("name") or f"User #{user.get('id')}",
                 score=calibrate_confidence(raw, weight / total, scorer_count, fallback),
                 match_reasons=reasons,
+                details=cand_details,
             )
         )
     ranked.sort(key=lambda item: item["score"], reverse=True)
@@ -1558,6 +1609,8 @@ def read_predict_payload(args):
             return vars(args)
     elif raw == "-":
         raw = sys.stdin.read()
+    elif isinstance(raw, str) and Path(raw).is_file():
+        raw = Path(raw).read_text(encoding="utf-8")
     if isinstance(raw, str) and raw.strip().startswith(("{", "[")):
         return json.loads(raw)
     return vars(args)

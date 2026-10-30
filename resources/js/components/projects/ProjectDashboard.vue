@@ -511,10 +511,16 @@
                                     v-for="task in getTasksByStatus(col.key)"
                                     :key="task.id"
                                     class="tp-kanban-card"
-                                    :class="{ 'is-dragging': draggedTaskId === task.id }"
+                                    :class="{
+                                        'is-dragging': draggedTaskId === task.id,
+                                        'drop-before': dropTargetTaskId === task.id && dropPosition === 'before' && draggedTaskId !== task.id,
+                                        'drop-after': dropTargetTaskId === task.id && dropPosition === 'after' && draggedTaskId !== task.id,
+                                    }"
                                     draggable="true"
                                     @dragstart="handleDragStart($event, task)"
                                     @dragend="handleDragEnd"
+                                    @dragover.prevent.stop="handleCardDragOver($event, task, col.key)"
+                                    @drop.prevent.stop="handleDrop($event, col.key, task)"
                                     @click="goToTask(task.id)"
                                 >
                                     <div class="tp-kanban-card-meta">
@@ -1664,6 +1670,8 @@ const workDistribution = computed(() => {
 const draggedTask = ref(null);
 const draggedTaskId = ref(null);
 const activeDropColumn = ref(null);
+const dropTargetTaskId = ref(null);
+const dropPosition = ref('after');
 
 const columns = computed(() => {
     const list = workflowConfig.statuses || [];
@@ -1787,6 +1795,7 @@ function handleDragStart(event, task) {
     isDraggingCard = true;
     draggedTask.value = task;
     draggedTaskId.value = task.id;
+    dropTargetTaskId.value = null;
     if (event.dataTransfer) {
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/plain', String(task.id));
@@ -1796,10 +1805,28 @@ function handleDragStart(event, task) {
 function handleDragEnd() {
     draggedTaskId.value = null;
     activeDropColumn.value = null;
+    dropTargetTaskId.value = null;
     setTimeout(() => {
         isDraggingCard = false;
         draggedTask.value = null;
     }, 150);
+}
+
+function handleCardDragOver(event, targetTask, colKey) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move';
+    }
+    activeDropColumn.value = colKey;
+    if (!targetTask || String(targetTask.id) === String(draggedTaskId.value)) {
+        dropTargetTaskId.value = null;
+        return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect();
+    const midpoint = rect.top + rect.height / 2;
+    dropTargetTaskId.value = targetTask.id;
+    dropPosition.value = event.clientY < midpoint ? 'before' : 'after';
 }
 
 function handleDragOver(event, colKey) {
@@ -1808,6 +1835,35 @@ function handleDragOver(event, colKey) {
         event.dataTransfer.dropEffect = 'move';
     }
     activeDropColumn.value = colKey;
+    if (!event.target?.closest?.('.tp-kanban-card')) {
+        const colEl = event.currentTarget?.closest?.('.tp-kanban-column') || event.currentTarget;
+        const cards = colEl ? Array.from(colEl.querySelectorAll('.tp-kanban-card:not(.is-dragging)')) : [];
+        const colTasks = getTasksByStatus(colKey).filter(t => String(t.id) !== String(draggedTaskId.value));
+        if (cards.length > 0 && colTasks.length > 0) {
+            const firstRect = cards[0].getBoundingClientRect();
+            if (event.clientY < firstRect.top + firstRect.height / 2) {
+                dropTargetTaskId.value = colTasks[0].id;
+                dropPosition.value = 'before';
+            } else {
+                let matchedTask = colTasks[colTasks.length - 1];
+                let matchedPos = 'after';
+                for (let i = 0; i < Math.min(cards.length, colTasks.length); i++) {
+                    const r = cards[i].getBoundingClientRect();
+                    if (event.clientY < r.top + r.height / 2) {
+                        matchedTask = colTasks[i];
+                        matchedPos = 'before';
+                        break;
+                    }
+                    matchedTask = colTasks[i];
+                    matchedPos = 'after';
+                }
+                dropTargetTaskId.value = matchedTask.id;
+                dropPosition.value = matchedPos;
+            }
+        } else {
+            dropTargetTaskId.value = null;
+        }
+    }
 }
 
 function handleDragEnter(event, colKey) {
@@ -1819,14 +1875,50 @@ function handleDragLeave(event, colKey) {
     if (event.currentTarget && !event.currentTarget.contains(event.relatedTarget)) {
         if (activeDropColumn.value === colKey) {
             activeDropColumn.value = null;
+            dropTargetTaskId.value = null;
         }
     }
 }
 
-async function handleDrop(event, colKey) {
+function reorderTaskInList(task, newStatus, targetTaskId, position) {
+    const currentIdx = taskList.value.findIndex(t => String(t.id) === String(task.id));
+    if (currentIdx === -1) return;
+
+    const [movedItem] = taskList.value.splice(currentIdx, 1);
+    movedItem.status = newStatus;
+
+    if (targetTaskId && String(targetTaskId) !== String(task.id)) {
+        const targetIdx = taskList.value.findIndex(t => String(t.id) === String(targetTaskId));
+        if (targetIdx !== -1) {
+            const insertAt = position === 'before' ? targetIdx : targetIdx + 1;
+            taskList.value.splice(insertAt, 0, movedItem);
+            return;
+        }
+    }
+
+    let lastStatusIdx = -1;
+    for (let i = taskList.value.length - 1; i >= 0; i--) {
+        if (taskList.value[i].status === newStatus) {
+            lastStatusIdx = i;
+            break;
+        }
+    }
+    if (lastStatusIdx !== -1) {
+        taskList.value.splice(lastStatusIdx + 1, 0, movedItem);
+    } else {
+        taskList.value.push(movedItem);
+    }
+}
+
+async function handleDrop(event, colKey, explicitTargetTask = null) {
     event.preventDefault();
     event.stopPropagation();
+
+    const targetId = explicitTargetTask?.id ?? dropTargetTaskId.value;
+    const pos = dropPosition.value;
+
     activeDropColumn.value = null;
+    dropTargetTaskId.value = null;
 
     let task = draggedTask.value;
     if (!task) {
@@ -1838,11 +1930,34 @@ async function handleDrop(event, colKey) {
     if (!task) return;
 
     const newStatus = colKey;
-    if (task.status === newStatus) return;
-
     const oldStatus = task.status;
-    // Real-time optimistic update: trigger stats and progress re-calculation immediately!
-    task.status = newStatus;
+
+    if (oldStatus === newStatus && (!targetId || String(targetId) === String(task.id))) {
+        return;
+    }
+
+    const previousSnapshot = taskList.value.map(t => ({ ...t }));
+
+    // Real-time optimistic update & reorder
+    reorderTaskInList(task, newStatus, targetId, pos);
+
+    const col = columns.value.find(c => c.key === newStatus);
+    const isInitialCol = col?.is_initial || (columns.value[0]?.key === newStatus);
+    const colTasksAfter = taskList.value.filter(t => {
+        if (t.status === newStatus) return true;
+        if (newStatus === 'todo' && ['backlog', 'open', 'new'].includes(t.status)) return true;
+        if (newStatus === 'in_progress' && ['doing'].includes(t.status)) return true;
+        if (newStatus === 'done' && ['completed', 'resolved', 'closed'].includes(t.status)) return true;
+        if (!t.status && isInitialCol) return true;
+        const statusExistsInCols = columns.value.some(c => c.key === t.status);
+        if (!statusExistsInCols && isInitialCol) return true;
+        return false;
+    });
+    const orderedTaskIds = colTasksAfter.map(t => t.id);
+    const newOrderIndex = Math.max(0, orderedTaskIds.indexOf(task.id));
+    colTasksAfter.forEach((t, idx) => {
+        t.order_index = idx;
+    });
 
     try {
         const token = props.csrfToken || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -1854,22 +1969,26 @@ async function handleDrop(event, colKey) {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ status: newStatus })
+            body: JSON.stringify({
+                status: newStatus,
+                order_index: newOrderIndex,
+                ordered_task_ids: orderedTaskIds,
+            })
         });
 
         const data = await res.json();
         if (!res.ok || !data.success) {
-            task.status = oldStatus;
+            taskList.value = previousSnapshot;
             alert(data.message || 'Không thể chuyển trạng thái công việc.');
         } else if (data.task) {
             const idx = taskList.value.findIndex(t => t.id === task.id);
             if (idx !== -1) {
-                taskList.value[idx] = { ...taskList.value[idx], ...data.task };
+                taskList.value[idx] = { ...taskList.value[idx], ...data.task, order_index: newOrderIndex };
             }
         }
     } catch (err) {
         console.error('Error moving task:', err);
-        task.status = oldStatus;
+        taskList.value = previousSnapshot;
         alert('Lỗi kết nối khi cập nhật trạng thái công việc.');
     }
 }
@@ -2295,6 +2414,20 @@ function formatRelativeTime(dateStr) {
     font-size: 14px;
 }
 
+:deep(.ai-suggest-btn-compact) {
+    height: 24px !important;
+    padding: 2px 8px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+    gap: 4px !important;
+    line-height: 1 !important;
+}
+
+:deep(.ai-suggest-btn-compact .ai-magic-icon) {
+    font-size: 10px !important;
+}
+
 :deep(.ai-reset-btn) {
     height: 38px;
     padding: 8px 14px;
@@ -2506,6 +2639,16 @@ function formatRelativeTime(dateStr) {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     border-color: #cbd5e1;
+}
+
+.tp-kanban-card.drop-before {
+    border-top: 3px solid #2563eb !important;
+    box-shadow: 0 -4px 10px rgba(37, 99, 235, 0.18);
+}
+
+.tp-kanban-card.drop-after {
+    border-bottom: 3px solid #2563eb !important;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
 }
 
 .tp-kanban-card:active {

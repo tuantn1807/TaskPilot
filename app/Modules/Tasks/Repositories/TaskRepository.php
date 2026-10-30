@@ -26,6 +26,7 @@ class TaskRepository
             ->when($projectId, fn ($query) => $query->where('project_id', $projectId))
             ->when($status, fn ($query) => $query->where('status', $status))
             ->when($priority, fn ($query) => $query->where('priority', $priority))
+            ->when(\Illuminate\Support\Facades\Schema::hasColumn('tasks', 'order_index'), fn ($query) => $query->orderBy('order_index'))
             ->orderBy('priority', 'desc')
             ->get();
     }
