@@ -133,8 +133,8 @@
                         </div>
                     </div>
 
-                    <!-- 3. Parent Epic Card -->
-                    <div class="edit-card edit-card-compact">
+                    <!-- 3. Parent Epic Card (Hidden if creating an Epic) -->
+                    <div v-if="form.issue_type !== 'epic'" class="edit-card edit-card-compact">
                         <div class="edit-card-header">
                             <div>
                                 <h2 class="edit-card-title">
@@ -184,40 +184,36 @@
                         <div class="edit-card-body">
                             <div class="edit-field" style="margin-bottom: 16px;">
                                 <label>Trạng thái ban đầu</label>
-                                <div class="status-selector" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <div class="status-selector" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; width: 100%;">
                                     <label
                                         v-for="status in statuses"
                                         :key="status.value"
                                         class="status-option"
-                                        style="cursor: pointer;"
+                                        @click="form.status = status.value"
+                                        style="cursor: pointer; margin: 0;"
                                     >
                                         <input
                                             type="radio"
-                                            name="status"
+                                            name="status_radio"
                                             :value="status.value"
-                                            v-model="form.status"
+                                            :checked="form.status === status.value"
                                             style="display: none;"
                                         >
                                         <span
-                                            :class="['status-card', `status-${status.value}`]"
-                                            :style="{
-                                                borderColor: form.status === status.value ? (status.color || '#3b82f6') : '#cbd5e1',
-                                                backgroundColor: form.status === status.value ? (status.color ? status.color + '15' : '#eff6ff') : '#ffffff',
-                                                boxShadow: form.status === status.value ? `0 0 0 2px ${status.color ? status.color + '33' : '#3b82f633'}` : 'none',
-                                                color: form.status === status.value ? (status.color || '#0f172a') : '#475569',
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '6px',
-                                                padding: '6px 14px',
-                                                borderRadius: '8px',
-                                                borderWidth: '1.5px',
-                                                borderStyle: 'solid',
-                                                fontSize: '13px',
-                                                fontWeight: '600',
-                                                transition: 'all 0.15s ease'
+                                            :class="['status-card', `status-${status.value}`, { active: form.status === status.value }]"
+                                            :style="form.status === status.value ? {
+                                                borderColor: status.color || '#2563eb',
+                                                backgroundColor: status.color ? status.color + '20' : '#eff6ff',
+                                                color: status.color || '#1d4ed8',
+                                                boxShadow: `0 0 0 2px ${status.color ? status.color + '40' : 'rgba(37, 99, 235, 0.25)'}`,
+                                                fontWeight: '700'
+                                            } : {
+                                                borderColor: '#cbd5e1',
+                                                backgroundColor: '#ffffff',
+                                                color: '#475569'
                                             }"
                                         >
-                                            <i :class="status.icon" :style="{ color: status.color || '#64748b' }"></i>
+                                            <i :class="status.icon" :style="{ color: form.status === status.value ? (status.color || '#2563eb') : '#64748b' }"></i>
                                             <span>{{ status.label }}</span>
                                         </span>
                                     </label>
@@ -360,11 +356,21 @@
 
                     <!-- Sidebar Order 3: Sprint -->
                     <div class="edit-card">
-                        <div class="edit-card-header">
-                            <h2 class="edit-card-title">
+                        <div class="edit-card-header d-flex justify-content-between align-items-center" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2 class="edit-card-title m-0" style="margin: 0;">
                                 <i class="fa fa-calendar-check-o"></i>
                                 Sprint
                             </h2>
+                            <button
+                                type="button"
+                                class="tp-btn tp-btn-light btn-xs"
+                                :disabled="!form.project_id"
+                                @click="showQuickSprintModal = true"
+                                title="Tạo nhanh sprint mới cho dự án này"
+                                style="font-size: 11px; padding: 3px 8px; cursor: pointer;"
+                            >
+                                <i class="fa fa-plus text-primary"></i> Thêm Sprint
+                            </button>
                         </div>
                         <div class="edit-card-body">
                             <div class="edit-field">
@@ -482,6 +488,63 @@
                 </button>
             </div>
         </form>
+
+        <!-- Quick Sprint Modal -->
+        <Teleport to="body">
+            <div v-if="showQuickSprintModal" class="edit-modal-overlay" @click.self="showQuickSprintModal = false" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px;">
+                <div class="edit-modal edit-card" style="max-width: 460px; width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.25);">
+                    <div class="edit-modal-header edit-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
+                        <h3 class="edit-modal-title m-0" style="margin: 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa fa-bolt text-primary"></i> Tạo Sprint mới
+                        </h3>
+                        <button type="button" class="btn-xs border-0 bg-transparent text-muted" style="font-size: 18px; cursor: pointer;" @click="showQuickSprintModal = false">&times;</button>
+                    </div>
+                    <div class="edit-modal-body edit-card-body" style="padding: 20px;">
+                        <div class="edit-field mb-3" style="margin-bottom: 14px;">
+                            <label class="edit-label" style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">Tên Sprint <span class="text-danger">*</span></label>
+                            <input
+                                type="text"
+                                v-model="quickSprint.name"
+                                class="edit-input"
+                                placeholder="Ví dụ: Sprint 1 - Phát triển tính năng"
+                                autofocus
+                            >
+                        </div>
+                        <div class="edit-field mb-3" style="margin-bottom: 14px;">
+                            <label class="edit-label" style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">Mục tiêu Sprint</label>
+                            <textarea
+                                v-model="quickSprint.goal"
+                                class="edit-textarea"
+                                rows="2"
+                                placeholder="Mục tiêu chính cần đạt được..."
+                            ></textarea>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <label class="edit-label" style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">Ngày bắt đầu</label>
+                                <input type="date" v-model="quickSprint.starts_at" class="edit-input">
+                            </div>
+                            <div>
+                                <label class="edit-label" style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">Ngày kết thúc</label>
+                                <input type="date" v-model="quickSprint.ends_at" class="edit-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="edit-modal-footer edit-card-actions" style="display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid #e2e8f0;">
+                        <button type="button" class="tp-btn tp-btn-light" @click="showQuickSprintModal = false">Hủy</button>
+                        <button
+                            type="button"
+                            class="tp-btn tp-btn-primary"
+                            :disabled="isCreatingSprint || !quickSprint.name.trim()"
+                            @click="createQuickSprint"
+                        >
+                            <i v-if="isCreatingSprint" class="fa fa-spinner fa-spin me-1"></i>
+                            <span>Tạo Sprint</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
     </div>
 </template>
 
@@ -645,6 +708,65 @@ watch(() => form.project_id, async (projectId) => {
         isLoadingProjectData.value = false;
     }
 }, { immediate: true });
+
+const showQuickSprintModal = ref(false);
+const isCreatingSprint = ref(false);
+const quickSprint = reactive({
+    name: '',
+    goal: '',
+    starts_at: '',
+    ends_at: '',
+});
+
+async function createQuickSprint() {
+    if (!form.project_id || !quickSprint.name.trim()) return;
+    isCreatingSprint.value = true;
+    try {
+        const token = props.csrfToken || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const res = await fetch(`/projects/${form.project_id}/sprints`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': token || '',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                name: quickSprint.name.trim(),
+                goal: quickSprint.goal ? quickSprint.goal.trim() : null,
+                starts_at: quickSprint.starts_at || null,
+                ends_at: quickSprint.ends_at || null,
+            })
+        });
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || 'Không thể tạo Sprint');
+        }
+
+        const data = await res.json();
+        const createdSprint = data.sprint;
+        if (createdSprint) {
+            sprints.value.push(createdSprint);
+            form.sprint_id = createdSprint.id;
+        }
+        showQuickSprintModal.value = false;
+        quickSprint.name = '';
+        quickSprint.goal = '';
+        quickSprint.starts_at = '';
+        quickSprint.ends_at = '';
+    } catch (err) {
+        alert(err.message || 'Lỗi khi tạo Sprint.');
+    } finally {
+        isCreatingSprint.value = false;
+    }
+}
+
+watch(() => form.issue_type, (newType) => {
+    if (newType === 'epic') {
+        form.parent_id = '';
+    }
+});
 
 onMounted(() => {
     const initialLabels = props.oldLabels || initialTask.labels || '';

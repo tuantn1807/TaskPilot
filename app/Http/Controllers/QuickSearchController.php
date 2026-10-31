@@ -67,13 +67,17 @@ class QuickSearchController extends Controller
         // Search Tasks
         $tasks = Task::where(function ($query) use ($term) {
             $query->where('name', 'like', "%{$term}%")
-                  ->orWhere('issue_key', 'like', "%{$term}%");
+                  ->orWhere('issue_key', 'like', "%{$term}%")
+                  ->orWhere('description', 'like', "%{$term}%");
         })
         ->where(function ($query) use ($userId) {
             $query->where('user_id', $userId)
                   ->orWhere('assignee_id', $userId)
-                  ->orWhereHas('project.users', function ($u) use ($userId) {
-                      $u->where('users.id', $userId);
+                  ->orWhereHas('project', function ($p) use ($userId) {
+                      $p->where('user_id', $userId)
+                        ->orWhereHas('users', function ($u) use ($userId) {
+                            $u->where('users.id', $userId);
+                        });
                   });
         })
         ->with('project:id,name')
@@ -93,7 +97,8 @@ class QuickSearchController extends Controller
         // Search Projects
         $projects = Project::where(function ($query) use ($term) {
             $query->where('name', 'like', "%{$term}%")
-                  ->orWhere('project_code', 'like', "%{$term}%");
+                  ->orWhere('project_code', 'like', "%{$term}%")
+                  ->orWhere('description', 'like', "%{$term}%");
         })
         ->where(function ($query) use ($userId) {
             $query->where('user_id', $userId)

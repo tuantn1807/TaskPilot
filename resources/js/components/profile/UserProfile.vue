@@ -972,4 +972,129 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 }
+
+/* Dark Mode Support for Profile */
+:global(.tp-theme-dark) .card-surface,
+:global(.tp-theme-dark) .info-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+:global(.tp-theme-dark) .surface-header {
+  background: #0f172a;
+  border-bottom-color: #334155;
+}
+
+:global(.tp-theme-dark) .surface-header h3 {
+  color: #f8fafc;
+}
+
+:global(.tp-theme-dark) .info-value,
+:global(.tp-theme-dark) .metric-row {
+  color: #f8fafc;
+}
+
+:global(.tp-theme-dark) .info-label,
+:global(.tp-theme-dark) .section-label,
+:global(.tp-theme-dark) .task-project {
+  color: #94a3b8;
+}
+
+:global(.tp-theme-dark) .info-row {
+  border-bottom-color: #334155;
+}
+
+:global(.tp-theme-dark) .profile-tabs-bar {
+  border-bottom-color: #334155;
+}
+
+:global(.tp-theme-dark) .tab-btn {
+  color: #94a3b8;
+}
+
+:global(.tp-theme-dark) .tab-btn:hover {
+  color: #f8fafc;
+}
+
+:global(.tp-theme-dark) .tab-btn.active {
+  color: #818cf8;
+  border-bottom-color: #818cf8;
+}
+
+:global(.tp-theme-dark) .form-control {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+:global(.tp-theme-dark) .form-control:focus {
+  background: #1e293b;
+  border-color: #6366f1;
+  color: #ffffff;
+}
+
+:global(.tp-theme-dark) .preset-tag {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+:global(.tp-theme-dark) .preset-tag:hover,
+:global(.tp-theme-dark) .preset-tag.active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #ffffff;
+}
+
+:global(.tp-theme-dark) .skills-table th {
+  background: #0f172a;
+  color: #94a3b8;
+  border-bottom-color: #334155;
+}
+
+:global(.tp-theme-dark) .skills-table td {
+  border-bottom-color: #334155;
+  color: #f8fafc;
+}
+
+:global(.tp-theme-dark) .btn-cancel {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+:global(.tp-theme-dark) .btn-cancel:hover {
+  background: #475569;
+  color: #ffffff;
+}
+
+:global(.tp-theme-dark) .exp-badge {
+  background: #0f172a;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+}
+
+:global(.tp-theme-dark) .preview-task-item {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+:global(.tp-theme-dark) .task-title {
+  color: #f8fafc;
+}
+
+:global(.tp-theme-dark) .sidebar-subheading {
+  color: #cbd5e1;
+}
+
+:global(.tp-theme-dark) .ai-explain-box {
+  background: #1e1b4b;
+  border-color: #3730a3;
+  color: #c084fc;
+}
+
+:global(.tp-theme-dark) .score-normal {
+  background: #334155;
+  color: #cbd5e1;
+}
 </style>

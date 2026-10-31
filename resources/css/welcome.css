@@ -396,11 +396,11 @@ a { text-decoration: none; color: inherit; }
 
 .tp-section-eyebrow {
     color: var(--primary);
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 19px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
+    letter-spacing: 1.5px;
+    margin-bottom: 14px;
     display: block;
 }
 

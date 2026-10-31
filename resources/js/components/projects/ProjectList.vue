@@ -105,6 +105,9 @@
             </td>
             <td>
               <div class="pl-actions">
+                <a :href="`/projects/${project.id}/sprints`" class="pl-btn pl-btn-ghost" title="Quản lý Sprints">
+                  <i class="fa fa-bolt"></i> Sprints
+                </a>
                 <a :href="`/projects/${project.id}/board`" class="pl-btn pl-btn-ghost">
                   <i class="fa fa-columns"></i> Board
                 </a>

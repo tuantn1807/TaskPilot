@@ -94,7 +94,7 @@
                             </div>
 
                             <!-- Customer Tier Selection (Quick Tag) -->
-                            <div class="tp-field mt-3">
+                            <div class="tp-field">
                                 <label class="tp-label">Phân khúc đối tác (Tier / Segment)</label>
                                 <div class="tp-tier-selector">
                                     <button
@@ -105,17 +105,17 @@
                                         :class="{ active: selectedTier === tier.id }"
                                         @click="selectTier(tier)"
                                     >
-                                        <i :class="`fa ${tier.icon} me-1`"></i>
+                                        <i :class="`fa ${tier.icon}`" style="margin-right: 6px;"></i>
                                         <span>{{ tier.name }}</span>
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Quick Industry Selector -->
-                            <div class="tp-field mt-3">
+                            <div class="tp-field">
                                 <div class="tp-field-label-row">
                                     <label class="tp-label">Lĩnh vực hoạt động nhanh</label>
-                                    <span class="tp-hint-label">Bấm để thêm vào mô tả</span>
+                                    <span class="tp-hint-label">Bấm để bật / tắt lĩnh vực trong mô tả</span>
                                 </div>
                                 <div class="tp-industry-tags">
                                     <button
@@ -123,15 +123,17 @@
                                         v-for="industry in industries"
                                         :key="industry"
                                         class="tp-industry-tag"
-                                        @click="appendIndustry(industry)"
+                                        :class="{ active: selectedIndustries.includes(industry) }"
+                                        @click="toggleIndustry(industry)"
                                     >
-                                        + {{ industry }}
+                                        <i :class="selectedIndustries.includes(industry) ? 'fa fa-check' : 'fa fa-plus'" style="margin-right: 4px; font-size: 11px;"></i>
+                                        {{ industry }}
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Description -->
-                            <div class="tp-field mt-3">
+                            <div class="tp-field">
                                 <div class="tp-field-label-row">
                                     <label for="company-desc" class="tp-label">Mô tả hoặc Giới thiệu doanh nghiệp</label>
                                     <span class="tp-counter">{{ form.description.length }}/1000</span>
@@ -496,15 +498,60 @@ const industries = [
     'Sản xuất & Vận tải',
     'Giáo dục & Đào tạo',
     'Y tế & Dược phẩm',
+    'Khác',
 ];
 
-function appendIndustry(industry) {
-    if (!form.description) {
-        form.description = `Lĩnh vực: ${industry}.`;
-    } else if (!form.description.includes(industry)) {
-        form.description += ` | ${industry}`;
+const selectedIndustries = ref([]);
+
+// Initialize selected industries from existing description
+industries.forEach(ind => {
+    if (form.description && form.description.includes(ind)) {
+        selectedIndustries.value.push(ind);
     }
-    showToast(`Đã thêm lĩnh vực "${industry}" vào mô tả.`);
+});
+
+function toggleIndustry(industry) {
+    const idx = selectedIndustries.value.indexOf(industry);
+    if (idx > -1) {
+        selectedIndustries.value.splice(idx, 1);
+        showToast(`Đã bỏ chọn lĩnh vực "${industry}".`);
+    } else {
+        selectedIndustries.value.push(industry);
+        showToast(`Đã chọn lĩnh vực "${industry}".`);
+    }
+    syncDescriptionFromIndustries();
+}
+
+function syncDescriptionFromIndustries() {
+    let desc = form.description || '';
+    const prefix = 'Lĩnh vực: ';
+    const indString = selectedIndustries.value.join(', ');
+
+    if (!indString) {
+        // Remove the Lĩnh vực line if empty
+        const lines = desc.split('\n').filter(l => !l.startsWith(prefix));
+        form.description = lines.join('\n').trim();
+        return;
+    }
+
+    if (desc.startsWith(prefix)) {
+        const lines = desc.split('\n');
+        lines[0] = `${prefix}${indString}`;
+        form.description = lines.join('\n').trim();
+    } else if (desc.includes('\n' + prefix)) {
+        const lines = desc.split('\n');
+        const lIdx = lines.findIndex(l => l.startsWith(prefix));
+        if (lIdx > -1) {
+            lines[lIdx] = `${prefix}${indString}`;
+        }
+        form.description = lines.join('\n').trim();
+    } else {
+        if (!desc.trim()) {
+            form.description = `${prefix}${indString}`;
+        } else {
+            form.description = `${desc.trim()}\n${prefix}${indString}`;
+        }
+    }
 }
 
 // Compute initials for avatar
@@ -777,6 +824,9 @@ onBeforeUnmount(() => {
 
 .tp-card-body {
     padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 /* FORM FIELDS */
@@ -917,6 +967,7 @@ onBeforeUnmount(() => {
 .tp-tier-chip {
     display: inline-flex;
     align-items: center;
+    gap: 8px;
     padding: 6px 12px;
     font-size: 12px;
     font-weight: 500;
@@ -950,8 +1001,11 @@ onBeforeUnmount(() => {
 }
 
 .tp-industry-tag {
-    padding: 4px 10px;
-    font-size: 11.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    font-size: 12px;
     font-weight: 500;
     color: #475569;
     background: #f1f5f9;
@@ -965,6 +1019,14 @@ onBeforeUnmount(() => {
     background: #e2e8f0;
     color: #0f172a;
     border-style: solid;
+}
+
+.tp-industry-tag.active {
+    background: #2563eb !important;
+    border: 1px solid #1d4ed8 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
 }
 
 /* CLIENT PREVIEW CARD (SIDEBAR) */
@@ -1323,10 +1385,57 @@ onBeforeUnmount(() => {
     background: #1e293b;
 }
 
+:global(.tp-theme-dark) .tp-crm-badge {
+    background: #1e293b;
+    border-color: #334155;
+    color: #60a5fa;
+}
+
+:global(.tp-theme-dark) .tp-crumb-link {
+    color: #94a3b8;
+}
+
+:global(.tp-theme-dark) .tp-crumb-link:hover {
+    color: #60a5fa;
+}
+
+:global(.tp-theme-dark) .tp-crumb-sep {
+    color: #475569;
+}
+
+:global(.tp-theme-dark) .tp-crumb-current {
+    color: #f1f5f9;
+}
+
+:global(.tp-theme-dark) .tp-card-icon-blue {
+    background: #1e3a8a;
+    border-color: #2563eb;
+    color: #93c5fd;
+}
+
+:global(.tp-theme-dark) .tp-card-icon-emerald {
+    background: #064e3b;
+    border-color: #059669;
+    color: #6ee7b7;
+}
+
+:global(.tp-theme-dark) .tp-card-subtitle,
+:global(.tp-theme-dark) .tp-counter,
+:global(.tp-theme-dark) .tp-hint-label,
+:global(.tp-theme-dark) .tp-field-icon {
+    color: #94a3b8;
+}
+
 :global(.tp-theme-dark) .tp-tier-chip {
     background: #0f172a;
     border-color: #334155;
     color: #94a3b8;
+}
+
+:global(.tp-theme-dark) .tp-tier-chip:hover {
+    background: #1e293b;
+    border-color: #475569;
+    color: #f8fafc;
 }
 
 :global(.tp-theme-dark) .tp-tier-chip.active {
@@ -1338,6 +1447,66 @@ onBeforeUnmount(() => {
 :global(.tp-theme-dark) .tp-industry-tag {
     background: #0f172a;
     border-color: #334155;
+    color: #94a3b8;
+}
+
+:global(.tp-theme-dark) .tp-industry-tag:hover {
+    background: #1e293b;
+    border-color: #3b82f6;
+    color: #93c5fd;
+}
+
+:global(.tp-theme-dark) .tp-industry-tag.active {
+    background: #2563eb !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+:global(.tp-theme-dark) .tp-client-card-preview {
+    border-color: #334155;
+    background: #1e293b;
+}
+
+:global(.tp-theme-dark) .tp-preview-avatar {
+    border-color: #1e293b;
+}
+
+:global(.tp-theme-dark) .tp-preview-status {
+    background: #064e3b;
+    border-color: #059669;
+    color: #6ee7b7;
+}
+
+:global(.tp-theme-dark) .tp-icon-mail {
+    background: #1e293b;
+    color: #60a5fa;
+}
+
+:global(.tp-theme-dark) .tp-icon-phone {
+    background: #1e293b;
+    color: #34d399;
+}
+
+:global(.tp-theme-dark) .tp-icon-pin {
+    background: #1e293b;
+    color: #f87171;
+}
+
+:global(.tp-theme-dark) .tp-mini-copy-btn {
+    color: #94a3b8;
+}
+
+:global(.tp-theme-dark) .tp-mini-copy-btn:hover {
+    background: #334155;
+    color: #60a5fa;
+}
+
+:global(.tp-theme-dark) .tp-actions-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+:global(.tp-theme-dark) .tp-action-footer-hint {
     color: #94a3b8;
 }
 

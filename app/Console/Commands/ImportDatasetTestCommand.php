@@ -299,7 +299,11 @@ class ImportDatasetTestCommand extends Command
             }
 
             $project->name = $this->clip($row['name'] ?? $code, 180) ?: $code;
-            $project->description = $this->clip($row['description'] ?? '', 5000);
+            $rawDescription = trim((string) ($row['description'] ?? ''));
+            if ($rawDescription === '') {
+                $rawDescription = $this->defaultProjectDescription($code, $project->name, $row['category'] ?? '', $row['components'] ?? []);
+            }
+            $project->description = $this->clip($rawDescription, 5000);
             $project->status = 'active';
             $project->archived = false;
             $project->project_type = 'team';
@@ -558,6 +562,30 @@ class ImportDatasetTestCommand extends Command
         }
         $slug = substr($slug, 0, 40);
         return $slug . '.' . $index . '@' . self::EMAIL_DOMAIN;
+    }
+
+    protected function defaultProjectDescription(string $code, string $name, string $category = '', array $components = []): string
+    {
+        $known = [
+            'FLEX' => 'The Apache Flex SDK is an application development framework for easily building expressive web, mobile, and desktop applications using ActionScript and MXML.',
+            'KARAF' => 'Apache Karaf is a lightweight, powerful, and enterprise-ready modulith runtime powered by OSGi for deploying microservices and modular applications.',
+            'AMBARI' => 'Ambari is a monitoring, administration and lifecycle management project for Apache Hadoop clusters.',
+            'CASSANDRA' => 'The Cassandra Project is a distributed storage system for managing structured/unstructured data while providing reliability at a massive scale.',
+            'CB' => 'Apache Cordova is a platform for building native mobile applications using HTML, CSS and JavaScript.',
+            'FLUME' => 'Flume is a distributed, reliable, and available system for efficiently collecting, aggregating, and moving large amounts of log data to a centralized data store.',
+            'TS' => 'Traffic Server is a fast, scalable and extensible HTTP/1.1 and HTTP/2 compliant caching proxy server.',
+        ];
+
+        $upperCode = strtoupper(trim($code));
+        if (isset($known[$upperCode])) {
+            return $known[$upperCode];
+        }
+
+        $compSample = array_slice(array_filter(array_map('trim', $components)), 0, 5);
+        $compText = !empty($compSample) ? ' Core modules include ' . implode(', ', $compSample) . '.' : '';
+        $catText = $category !== '' ? " ($category)" : '';
+
+        return "{$name}{$catText} is an open-source software engineering project managed on TaskPilot.{$compText}";
     }
 
     protected function clip($value, int $max): string

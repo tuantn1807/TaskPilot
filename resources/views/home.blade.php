@@ -25,10 +25,12 @@ window.homeData = {
         tasksCreate: @json(route('tasks.create')),
         projectsCreate: @json(route('projects.create')),
         projectsIndex: @json(route('projects.index')),
+        sprintsMain: @json(route('sprints.main')),
         tasksIndex: @json(route('tasks.index')),
         teamsIndex: @json(route('teams.index')),
         companiesIndex: @json(route('companies.index')),
         skillsIndex: @json(route('skills.index')),
+        profileIndex: @json(route('profile.index')),
         guide: @json(route('guide'))
     }
 };

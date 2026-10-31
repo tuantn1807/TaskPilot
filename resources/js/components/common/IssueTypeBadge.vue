@@ -32,3 +32,18 @@ const badgeClass = computed(() => {
     return `tp-badge-type-${props.type || 'task'}`;
 });
 </script>
+
+<style scoped>
+.tp-badge {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+</style>

@@ -77,17 +77,17 @@
                     <i class="fa fa-folder-open-o"></i>
                     <span>Dự án</span>
                 </a>
-                <a :href="`/projects/${project.id}`" class="pd-nav-item" :class="{ active: currentTab === 'overview' }" @click.prevent="currentTab = 'overview'">
-                    <i class="fa fa-th-large"></i>
-                    <span>Tổng quan</span>
+                <a :href="`/projects/${project.id}/sprints`" class="pd-nav-item">
+                    <i class="fa fa-bolt"></i>
+                    <span>Backlog / Sprint</span>
                 </a>
                 <a :href="`/projects/${project.id}/board`" class="pd-nav-item">
                     <i class="fa fa-columns"></i>
                     <span>Bảng (Board)</span>
                 </a>
-                <a :href="`/projects/${project.id}/sprints`" class="pd-nav-item">
-                    <i class="fa fa-list-alt"></i>
-                    <span>Backlog / Sprint</span>
+                <a :href="`/projects/${project.id}`" class="pd-nav-item" :class="{ active: currentTab === 'overview' }" @click.prevent="currentTab = 'overview'">
+                    <i class="fa fa-th-large"></i>
+                    <span>Tổng quan</span>
                 </a>
                 <a :href="`/projects/${project.id}/members`" class="pd-nav-item">
                     <i class="fa fa-users"></i>

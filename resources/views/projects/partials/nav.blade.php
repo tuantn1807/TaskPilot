@@ -19,17 +19,17 @@
         <i class="fa fa-folder-open-o"></i>
         <span>Dự án</span>
     </a>
-    <a href="{{ route('projects.show', $project) }}" class="pd-nav-item {{ $currentTab === 'overview' ? 'active' : '' }}">
-        <i class="fa fa-th-large"></i>
-        <span>Tổng quan</span>
+    <a href="{{ route('sprints.index', $project) }}" class="pd-nav-item {{ $currentTab === 'sprints' ? 'active' : '' }}">
+        <i class="fa fa-bolt"></i>
+        <span>Backlog / Sprint</span>
     </a>
     <a href="{{ route('projects.board', $project) }}" class="pd-nav-item {{ $currentTab === 'board' ? 'active' : '' }}">
         <i class="fa fa-columns"></i>
         <span>Bảng (Board)</span>
     </a>
-    <a href="{{ route('sprints.index', $project) }}" class="pd-nav-item {{ $currentTab === 'sprints' ? 'active' : '' }}">
-        <i class="fa fa-list-alt"></i>
-        <span>Backlog / Sprint</span>
+    <a href="{{ route('projects.show', $project) }}" class="pd-nav-item {{ $currentTab === 'overview' ? 'active' : '' }}">
+        <i class="fa fa-th-large"></i>
+        <span>Tổng quan</span>
     </a>
     <a href="{{ route('projects.members.index', $project) }}" class="pd-nav-item {{ $currentTab === 'members' ? 'active' : '' }}">
         <i class="fa fa-users"></i>

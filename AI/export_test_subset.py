@@ -90,6 +90,17 @@ def csv_chunks(path: Path, columns: list[str], chunksize: int = 50_000):
     )
 
 
+DEFAULT_PROJECT_DESCRIPTIONS = {
+    "FLEX": "The Apache Flex SDK is an application development framework for easily building expressive web, mobile, and desktop applications using ActionScript and MXML.",
+    "KARAF": "Apache Karaf is a lightweight, powerful, and enterprise-ready modulith runtime powered by OSGi for deploying microservices and modular applications.",
+    "AMBARI": "Ambari is a monitoring, administration and lifecycle management project for Apache Hadoop clusters.",
+    "CASSANDRA": "The Cassandra Project is a distributed storage system for managing structured/unstructured data while providing reliability at a massive scale.",
+    "CB": "Apache Cordova is a platform for building native mobile applications using HTML, CSS and JavaScript.",
+    "FLUME": "Flume is a distributed, reliable, and available system for efficiently collecting, aggregating, and moving large amounts of log data from many different sources to a centralized data store.",
+    "TS": "Traffic Server is a fast, scalable and extensible HTTP/1.1 and HTTP/2 compliant caching proxy server.",
+}
+
+
 def load_projects(dataset_dir: Path) -> dict[str, dict]:
     path = dataset_dir / "project_clean.csv"
     projects = {}
@@ -101,13 +112,23 @@ def load_projects(dataset_dir: Path) -> dict[str, dict]:
             data = dict(zip(chunk.columns, row))
             key = normalize(data.get("key"))
             name = normalize(data.get("name"))
+            category = normalize(data.get("projectCategory"))
+            components = parse_listy(data.get("components"))
+            desc = (normalize(data.get("description")) or "")[:2000]
+            if not desc:
+                desc = DEFAULT_PROJECT_DESCRIPTIONS.get(key.upper(), "")
+            if not desc:
+                comp_preview = ", ".join(components[:5])
+                comp_suffix = f" featuring modules such as {comp_preview}" if comp_preview else ""
+                cat_suffix = f" ({category})" if category else ""
+                desc = f"{name or key}{cat_suffix} is an open-source software development project{comp_suffix}."
             record = {
                 "key": key or name,
                 "name": name or key,
-                "description": (normalize(data.get("description")) or "")[:2000],
-                "category": normalize(data.get("projectCategory")),
+                "description": desc,
+                "category": category,
                 "lead": normalize(data.get("lead")),
-                "components": parse_listy(data.get("components")),
+                "components": components,
             }
             if key:
                 projects[key] = record

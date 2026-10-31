@@ -647,6 +647,7 @@ html.tp-theme-dark {
 }
 
 .tp-theme-dark .task-show-wrapper .tp-comment-item,
+.tp-theme-dark .task-show-wrapper .tp-comment-form,
 .tp-theme-dark .task-show-wrapper .tp-description-box,
 .tp-theme-dark .task-show-wrapper .edit-card,
 .tp-theme-dark .task-show-wrapper .sidebar-meta-item {
@@ -1136,6 +1137,87 @@ html.tp-theme-dark {
 .tp-theme-dark .sprint-jira-inspired .jira-panel-heading,.tp-theme-dark .sprint-jira-inspired .jira-backlog-list { background: var(--tp-surface) !important; }.tp-theme-dark .sprint-jira-inspired .sprint-board-card header { background: var(--tp-surface-muted) !important; border-color: var(--tp-border) !important; }.tp-theme-dark .sprint-jira-inspired .jira-backlog-item.sprint-task-row:hover,.tp-theme-dark .sprint-jira-inspired .sprint-board-card__tasks .sprint-task-row:hover { background: #192d49 !important; border-color: var(--tp-border) !important; box-shadow: inset 3px 0 0 #5d95e8 !important; }.tp-theme-dark .sprint-jira-inspired .sprint-board-card__tasks { border-color: var(--tp-border) !important; }
 .tp-theme-dark .sprint-jira-toolbar{background:var(--tp-surface)!important;border-color:var(--tp-border)!important;box-shadow:0 3px 10px rgba(0,0,0,.16)!important}.tp-theme-dark .sprint-jira-toolbar h2,.tp-theme-dark .sprint-jira-toolbar-stats strong{color:var(--tp-text)!important}.tp-theme-dark .sprint-jira-toolbar p,.tp-theme-dark .sprint-jira-toolbar-stats span{color:var(--tp-muted)!important;border-color:var(--tp-border)!important}.tp-theme-dark .sprint-jira-toolbar-icon{color:#a9ccff!important;background:#1e416e!important}.tp-theme-dark .sprint-list-columns{color:#a7b8cf!important;background:var(--tp-surface-muted)!important;border-color:var(--tp-border)!important}.tp-theme-dark .sprint-task-row__meta i{color:#94a9c3!important}
 
+
+/* Sidebar Brand and Search in Dark Mode */
+.tp-theme-dark .tp-sidebar-brand,
+.tp-theme-dark .tp-sidebar-brand .tp-brand-text,
+html.tp-theme-dark .tp-sidebar-brand,
+html.tp-theme-dark .tp-sidebar-brand .tp-brand-text {
+  color: #f8fafc !important;
+}
+
+.tp-theme-dark .tp-search-container,
+html.tp-theme-dark .tp-search-container {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.tp-theme-dark .tp-search-input,
+html.tp-theme-dark .tp-search-input {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.tp-theme-dark .tp-search-input:focus,
+html.tp-theme-dark .tp-search-input:focus {
+  background: #0f172a !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.tp-theme-dark .tp-search-input::placeholder,
+html.tp-theme-dark .tp-search-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.tp-theme-dark .tp-search-dropdown,
+html.tp-theme-dark .tp-search-dropdown {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4) !important;
+}
+
+.tp-theme-dark .tp-search-section-title,
+html.tp-theme-dark .tp-search-section-title {
+  color: #94a3b8 !important;
+  border-top-color: #334155 !important;
+}
+
+.tp-theme-dark .tp-search-item,
+html.tp-theme-dark .tp-search-item {
+  color: #f8fafc !important;
+  border-bottom-color: #334155 !important;
+}
+
+.tp-theme-dark .tp-search-item:hover,
+.tp-theme-dark .tp-search-item.selected,
+html.tp-theme-dark .tp-search-item:hover,
+html.tp-theme-dark .tp-search-item.selected {
+  background: #334155 !important;
+}
+
+.tp-theme-dark .tp-search-item-title,
+html.tp-theme-dark .tp-search-item-title {
+  color: #f8fafc !important;
+}
+
+.tp-theme-dark .tp-search-item-sub,
+html.tp-theme-dark .tp-search-item-sub {
+  color: #94a3b8 !important;
+}
+
+.tp-theme-dark .tp-search-item-icon,
+html.tp-theme-dark .tp-search-item-icon {
+  background: #0f172a !important;
+  color: #60a5fa !important;
+}
+
+.tp-theme-dark .tp-search-item-badge,
+html.tp-theme-dark .tp-search-item-badge {
+  background: #334155 !important;
+  color: #cbd5e1 !important;
+}
 
 @media (max-width: 767px) {
   .tp-theme-dark .tp-navbar .navbar-collapse {

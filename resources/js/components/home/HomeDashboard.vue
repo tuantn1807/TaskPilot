@@ -19,15 +19,15 @@
         <a :href="routes.projectsCreate || '/projects/create'" class="btn-hero btn-hero-secondary">
           <i class="fa fa-folder-plus"></i> Dự án mới
         </a>
-        <a :href="routes.skillsIndex || '/skills'" class="btn-hero btn-hero-ai">
-          <i class="fa fa-magic"></i> Hồ sơ kỹ năng AI
+        <a :href="routes.profileIndex || '/profile'" class="btn-hero btn-hero-ai">
+          <i class="fa fa-user-circle"></i> Hồ sơ cá nhân
         </a>
       </div>
     </div>
 
     <!-- Stat Grid -->
     <div class="stats-grid">
-      <div class="stat-card">
+      <a :href="routes.projectsIndex || '/projects'" class="stat-card" title="Xem danh sách dự án">
         <div class="stat-icon icon-projects">
           <i class="fa fa-folder-open"></i>
         </div>
@@ -35,12 +35,12 @@
           <span class="stat-value">{{ totalProjects }}</span>
           <span class="stat-label">Dự án hoạt động</span>
         </div>
-        <a :href="routes.projectsIndex || '/projects'" class="stat-link" title="Xem dự án">
+        <span class="stat-link">
           <i class="fa fa-arrow-right"></i>
-        </a>
-      </div>
+        </span>
+      </a>
 
-      <div class="stat-card">
+      <a :href="routes.projectsIndex || '/projects'" class="stat-card" title="Xem các dự án và công việc">
         <div class="stat-icon icon-tasks">
           <i class="fa fa-tasks"></i>
         </div>
@@ -48,12 +48,12 @@
           <span class="stat-value">{{ totalTasks }}</span>
           <span class="stat-label">Công việc trên hệ thống</span>
         </div>
-        <a :href="routes.tasksIndex || '/tasks'" class="stat-link" title="Xem công việc">
+        <span class="stat-link">
           <i class="fa fa-arrow-right"></i>
-        </a>
-      </div>
+        </span>
+      </a>
 
-      <div class="stat-card">
+      <a :href="routes.projectsIndex || '/projects'" class="stat-card" title="Công việc giao cho bạn">
         <div class="stat-icon icon-user-tasks">
           <i class="fa fa-user-check"></i>
         </div>
@@ -61,12 +61,12 @@
           <span class="stat-value">{{ userTasksCount }}</span>
           <span class="stat-label">Giao cho bạn</span>
         </div>
-        <a :href="routes.tasksIndex || '/tasks'" class="stat-link" title="Công việc của tôi">
+        <span class="stat-link">
           <i class="fa fa-arrow-right"></i>
-        </a>
-      </div>
+        </span>
+      </a>
 
-      <div class="stat-card">
+      <a :href="routes.companiesIndex || '/companies'" class="stat-card" title="Xem khách hàng">
         <div class="stat-icon icon-companies">
           <i class="fa fa-building"></i>
         </div>
@@ -74,10 +74,10 @@
           <span class="stat-value">{{ totalCompanies }}</span>
           <span class="stat-label">Khách hàng / Đối tác</span>
         </div>
-        <a :href="routes.companiesIndex || '/companies'" class="stat-link" title="Xem khách hàng">
+        <span class="stat-link">
           <i class="fa fa-arrow-right"></i>
-        </a>
-      </div>
+        </span>
+      </a>
     </div>
 
     <!-- Main Content Area: Split 2 Columns -->
@@ -102,13 +102,13 @@
               </div>
             </a>
 
-            <a :href="routes.tasksIndex || '/tasks'" class="shortcut-item">
+            <a :href="routes.sprintsMain || '/sprints'" class="shortcut-item">
               <div class="shortcut-icon bg-blue-subtle text-blue">
-                <i class="fa fa-th-list"></i>
+                <i class="fa fa-bolt"></i>
               </div>
               <div class="shortcut-text">
-                <strong>Bảng Kanban / Tasks</strong>
-                <p>Theo dõi luồng xử lý công việc</p>
+                <strong>Quản lý Sprints / Backlog</strong>
+                <p>Theo dõi và điều phối kế hoạch Sprint</p>
               </div>
             </a>
 
@@ -122,13 +122,13 @@
               </div>
             </a>
 
-            <a :href="routes.skillsIndex || '/skills'" class="shortcut-item">
+            <a :href="routes.profileIndex || '/profile'" class="shortcut-item">
               <div class="shortcut-icon bg-purple-subtle text-purple">
-                <i class="fa fa-sliders"></i>
+                <i class="fa fa-user-circle"></i>
               </div>
               <div class="shortcut-text">
-                <strong>Hồ sơ Kỹ năng AI</strong>
-                <p>Cập nhật kỹ năng để AI gợi ý bài toán chuẩn xác</p>
+                <strong>Hồ sơ Cá nhân</strong>
+                <p>Thông tin và kỹ năng của bạn</p>
               </div>
             </a>
 
@@ -215,7 +215,7 @@
               <i class="fa fa-lightbulb text-purple"></i>
               <span>Cập nhật <strong>Hồ sơ Kỹ năng</strong> để AI gợi ý chính xác hơn cho bạn!</span>
             </div>
-            <a :href="routes.skillsIndex || '/skills'" class="btn-skills-prompt">
+            <a :href="routes.profileIndex || '/profile'" class="btn-skills-prompt">
               Cập nhật ngay
             </a>
           </div>

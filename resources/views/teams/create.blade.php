@@ -1069,7 +1069,7 @@
 
     box-shadow: none !important;
 
-    color: #172b4d;
+    color: #172b4d !important;
 
     font-size: 13px;
 }
@@ -1078,6 +1078,19 @@
     color: #8993a4;
 
     font-size: 13px;
+}
+
+.tp-theme-dark #jira-tag-container {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+.tp-theme-dark #jira-tag-container input {
+    color: #f8fafc !important;
+}
+
+.tp-theme-dark #jira-tag-container input::placeholder {
+    color: #64748b !important;
 }
 
 
@@ -1595,7 +1608,9 @@ document.addEventListener('DOMContentLoaded', function () {
             remove.type = 'button';
             remove.setAttribute('aria-label', `Xóa ${identifier}`);
             remove.innerHTML = '&times;';
-            remove.addEventListener('click', function () {
+            remove.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
                 memberIdentifiers.splice(index, 1);
                 renderMemberTags();
             });
@@ -1608,10 +1623,17 @@ document.addEventListener('DOMContentLoaded', function () {
         input.placeholder = 'Nhập email hoặc username rồi nhấn Enter';
         input.autocomplete = 'off';
         input.addEventListener('keydown', function (event) {
+            if (event.key === 'Backspace' && input.value === '' && memberIdentifiers.length > 0) {
+                memberIdentifiers.pop();
+                renderMemberTags();
+                return;
+            }
             if (event.key === 'Enter' || event.key === ',' || event.key === ';') {
                 event.preventDefault();
-                addMemberIdentifiers(input.value);
-                input.value = '';
+                if (input.value.trim()) {
+                    addMemberIdentifiers(input.value);
+                    input.value = '';
+                }
             }
         });
         input.addEventListener('blur', function () {
@@ -1625,6 +1647,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     renderMemberTags();
+
+    // Prevent submitting with dangling un-synced members
+    const teamForm = document.getElementById('create-team-form');
+    if (teamForm) {
+        teamForm.addEventListener('submit', function () {
+            const currentInput = tagContainer.querySelector('input');
+            if (currentInput && currentInput.value.trim()) {
+                addMemberIdentifiers(currentInput.value);
+                currentInput.value = '';
+            }
+            syncMembers();
+        });
+    }
 
 
     /*

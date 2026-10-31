@@ -67,8 +67,9 @@ class TasksController extends Controller
      */
     public function create(Request $request): View
     {
-        $data = $this->createTaskHandler->handle(Auth::id(), $request->query('project_id'));
-        $status = $request->query('status');
+        $projectId = $request->query('project_id') ?: old('project_id');
+        $data = $this->createTaskHandler->handle(Auth::id(), $projectId);
+        $status = $request->query('status') ?: old('status');
         
         $activeStatuses = collect($data['effective_workflow']['statuses'] ?? [])
             ->filter(fn ($s) => ($s['is_active'] ?? true) !== false);
@@ -130,9 +131,9 @@ class TasksController extends Controller
             'priority' => ['nullable', 'in:low,medium,high'],
             'assignee_id' => ['nullable', 'integer', 'exists:users,id'],
             'reporter_id' => ['nullable', 'integer', 'exists:users,id'],
-            'due_date' => ['nullable', 'date'],
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'due_date' => ['nullable', 'date', 'before:2100-01-01'],
+            'start_date' => ['nullable', 'date', 'before:2100-01-01'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date', 'before:2100-01-01'],
             'story_points' => ['nullable', 'numeric', 'min:0'],
             'labels' => ['nullable', 'string', 'max:1000'],
             'sprint_id' => ['nullable', 'integer', 'exists:sprints,id'],

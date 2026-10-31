@@ -524,7 +524,7 @@ const applyAll = async () => {
 };
 
 const resetPool = async () => {
-    if (!confirm('Gỡ người xử lý trên các việc test AI để gợi ý lại từ đầu? Việc đã đóng/gán từ dataset sẽ giữ nguyên.')) {
+    if (!confirm('Bạn có muốn đặt lại gợi ý AI cho các công việc thử nghiệm trong dự án này?')) {
         return;
     }
 
@@ -534,10 +534,14 @@ const resetPool = async () => {
             projectId: props.projectId || null,
         });
         emit('reset', result.tasks || []);
-        alert(`Đã reset ${result.reset_count || 0} công việc test AI. Có thể bấm AI gợi ý tất cả lại.`);
+        if (result.reset_count > 0) {
+            alert(`Đã đặt lại thành công ${result.reset_count} công việc. Bạn có thể sử dụng tính năng "AI gợi ý" ngay bây giờ.`);
+        } else {
+            alert('Hiện tại không có công việc thử nghiệm nào cần đặt lại.');
+        }
     } catch (err) {
         console.error('AI test reset error:', err);
-        alert(err.message || 'Không thể reset dữ liệu test AI.');
+        alert(err.message || 'Không thể đặt lại dữ liệu AI.');
     } finally {
         resetting.value = false;
     }
