@@ -62,6 +62,25 @@ i.fa, i.fas, i.far, i.fab, .fa, .fas, .far, .fab, [class^="fa-"], [class*=" fa-"
     overflow: hidden;
 }
 
+.tp-header-banner #task-name-text,
+.tp-header-banner h1,
+.tp-header-banner .task-name-text {
+    color: #ffffff !important;
+}
+
+.tp-header-banner .jira-editable-field.clickable:hover {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.tp-header-banner .jira-editable-field .jira-hover-pencil {
+    color: #94a3b8 !important;
+}
+
+.tp-header-banner .jira-editable-field.clickable:hover .jira-hover-pencil {
+    color: #ffffff !important;
+}
+
 .tp-header-banner::before {
     content: '';
     position: absolute;
@@ -1111,6 +1130,8 @@ i.fa, i.fas, i.far, i.fab, .fa, .fas, .far, .fab, [class^="fa-"], [class*=" fa-"
 .align-items-start { align-items: flex-start !important; }
 .flex-wrap { flex-wrap: wrap !important; }
 .flex-column { flex-direction: column !important; }
+.flex-grow-1 { flex-grow: 1 !important; }
+.flex-shrink-0 { flex-shrink: 0 !important; }
 
 .gap-1 { gap: 4px !important; }
 .gap-2 { gap: 8px !important; }
@@ -1282,9 +1303,9 @@ i.fa, i.fas, i.far, i.fab, .fa, .fas, .far, .fab, [class^="fa-"], [class*=" fa-"
     justify-content: center;
 }
 
-.comment-textarea {
-    min-height: 80px !important;
-    border-radius: 10px !important;
+.comment-textarea:not([style*="display: none"]) {
+    min-height: 80px;
+    border-radius: 10px;
 }
 
 .tp-comment-item {
@@ -1556,7 +1577,6 @@ i.fa, i.fas, i.far, i.fab, .fa, .fas, .far, .fab, [class^="fa-"], [class*=" fa-"
 .cke_wrapper,
 .cke_editor,
 .cke_chrome,
-.comment-textarea,
 #task-comment-form,
 .comment-content-wrap,
 .ck-content-body {
@@ -1566,17 +1586,51 @@ i.fa, i.fas, i.far, i.fab, .fa, .fas, .far, .fab, [class^="fa-"], [class*=" fa-"
     box-sizing: border-box !important;
 }
 
+.tp-comment-form {
+    padding-bottom: 20px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Comment Form Layout: Avatar and Editor side-by-side & aligned at the top */
+.tp-comment-input-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    gap: 14px !important;
+    width: 100% !important;
+}
+
+.tp-comment-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    border-radius: 50% !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+}
+
+.tp-comment-editor-wrap {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    width: calc(100% - 52px) !important;
+}
+
 /* Tighten gap between Add Comment label and CKEditor box */
 .tp-comment-form label {
     margin-top: 0 !important;
-    margin-bottom: 4px !important;
+    margin-bottom: 6px !important;
     padding-bottom: 0 !important;
     display: block !important;
 }
 
 .tp-comment-form .cke {
-    margin-top: 2px !important;
+    margin-top: 0 !important;
     margin-bottom: 10px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
 }
 
 /* Screen Sticky Controls: Stays stationary when screen horizontal scroll moves */

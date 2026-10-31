@@ -62,9 +62,9 @@
                             <i class="fa fa-folder tp-link-icon"></i>
                             <span class="tp-link-text">Dự án</span>
                         </a>
-                        <a href="{{ route('tasks.index') }}" class="tp-sidebar-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}" data-title="Công việc">
-                            <i class="fa fa-tasks tp-link-icon"></i>
-                            <span class="tp-link-text">Công việc</span>
+                        <a href="{{ route('sprints.main') }}" class="tp-sidebar-link {{ request()->routeIs('sprints.*') ? 'active' : '' }}" data-title="Sprints">
+                            <i class="fa fa-bolt tp-link-icon"></i>
+                            <span class="tp-link-text">Sprints</span>
                         </a>
                         <a href="{{ route('workflows.index') }}" class="tp-sidebar-link {{ request()->routeIs('workflows.*') ? 'active' : '' }}" data-title="Quy trình">
                             <i class="fa fa-sitemap tp-link-icon"></i>

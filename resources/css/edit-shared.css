@@ -576,3 +576,124 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Dark Mode Overrides */
+.tp-theme-dark .edit-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+.tp-theme-dark .edit-card-header {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+.tp-theme-dark .edit-card-title {
+    color: #f8fafc !important;
+}
+
+.tp-theme-dark .edit-card-desc {
+    color: #94a3b8 !important;
+}
+
+.tp-theme-dark .edit-card-actions {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+.tp-theme-dark .edit-input,
+.tp-theme-dark .edit-select,
+.tp-theme-dark .edit-textarea {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+.tp-theme-dark .edit-input:focus,
+.tp-theme-dark .edit-select:focus,
+.tp-theme-dark .edit-textarea:focus {
+    background: #1e293b !important;
+    border-color: #3b82f6 !important;
+}
+
+.tp-theme-dark .edit-label {
+    color: #cbd5e1 !important;
+}
+
+.tp-theme-dark .edit-help {
+    color: #94a3b8 !important;
+}
+
+.tp-theme-dark .edit-modal {
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+.tp-theme-dark .edit-modal-header {
+    background: #0f172a !important;
+    border-bottom: 1px solid #334155 !important;
+}
+
+.tp-theme-dark .edit-modal-header h3,
+.tp-theme-dark .edit-modal-title {
+    color: #f8fafc !important;
+}
+
+.tp-theme-dark .edit-modal-body label {
+    color: #cbd5e1 !important;
+}
+
+.tp-theme-dark .edit-modal-footer {
+    background: #0f172a !important;
+    border-top: 1px solid #334155 !important;
+}
+
+/* Quill Editor Word Break & Dark Mode */
+.quill-editor, .ql-container, .ql-editor {
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    white-space: pre-wrap !important;
+}
+
+.tp-theme-dark .ql-toolbar {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+.tp-theme-dark .ql-toolbar .ql-stroke {
+    stroke: #94a3b8 !important;
+}
+
+.tp-theme-dark .ql-toolbar .ql-fill {
+    fill: #94a3b8 !important;
+}
+
+.tp-theme-dark .ql-toolbar .ql-picker {
+    color: #cbd5e1 !important;
+}
+
+.tp-theme-dark .ql-toolbar button:hover .ql-stroke,
+.tp-theme-dark .ql-toolbar button.ql-active .ql-stroke {
+    stroke: #3b82f6 !important;
+}
+
+.tp-theme-dark .ql-toolbar button:hover .ql-fill,
+.tp-theme-dark .ql-toolbar button.ql-active .ql-fill {
+    fill: #3b82f6 !important;
+}
+
+.tp-theme-dark .ql-container {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+.tp-theme-dark .ql-editor {
+    color: #f8fafc !important;
+}
+
+.tp-theme-dark .ql-editor.ql-blank::before {
+    color: #64748b !important;
+}

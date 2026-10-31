@@ -116,10 +116,12 @@
 
             searchInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
+                    e.preventDefault();
                     var firstItem = searchDropdown.querySelector('.tp-search-item');
                     if (firstItem) {
-                        e.preventDefault();
                         window.location.href = firstItem.getAttribute('href');
+                    } else if (this.value.trim().length > 0) {
+                        window.location.href = '/projects?search=' + encodeURIComponent(this.value.trim());
                     }
                 }
             });

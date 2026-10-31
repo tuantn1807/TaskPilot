@@ -16,6 +16,33 @@ use ProjectsManager\Task;
 
 class SprintsController extends Controller
 {
+    public function mainIndex(Request $request): RedirectResponse
+    {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $userId = Auth::id();
+        // Tìm dự án gần nhất của user (do user tạo hoặc là thành viên)
+        $project = Project::where('user_id', $userId)
+            ->orWhereHas('users', function ($q) use ($userId) {
+                $q->where('users.id', $userId);
+            })
+            ->latest('updated_at')
+            ->first();
+
+        if ($project) {
+            return redirect()->route('sprints.index', $project);
+        }
+
+        $anyProject = Project::first();
+        if ($anyProject) {
+            return redirect()->route('sprints.index', $anyProject);
+        }
+
+        return redirect()->route('projects.index')->with('info', 'Vui lòng tạo hoặc chọn một dự án để xem Sprints.');
+    }
+
     public function index(Project $project): View
     {
         // Tự động đóng sprint đang chạy nếu đã quá hạn ngày kết thúc
@@ -75,9 +102,17 @@ class SprintsController extends Controller
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
         ]);
 
-        $project->sprints()->create(array_merge($data, [
+        $sprint = $project->sprints()->create(array_merge($data, [
             'status' => 'planned',
         ]));
+
+        if ($request->expectsJson() || $request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'sprint' => $sprint,
+                'message' => 'Sprint mới đã được tạo thành công.',
+            ]);
+        }
 
         return back()->with('success', 'Sprint mới đã được tạo thành công.');
     }

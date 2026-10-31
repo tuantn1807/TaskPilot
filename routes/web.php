@@ -93,6 +93,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('tasks/{task}/approve', [TasksController::class, 'approve'])->name('tasks.approve');
     Route::post('tasks/{task}/test-result', [TasksController::class, 'saveTestResult'])->name('tasks.test-result');
 
+    Route::get('sprints', [SprintsController::class, 'mainIndex'])->name('sprints.main');
     Route::get('projects/{project}/sprints', [SprintsController::class, 'index'])->name('sprints.index');
     Route::post('projects/{project}/sprints', [SprintsController::class, 'store'])->name('sprints.store');
     Route::post('projects/{project}/sprints/{sprint}/start', [SprintsController::class, 'start'])->name('sprints.start');

@@ -169,6 +169,37 @@
 
     </div>
 </div>
+
+<style>
+.tp-invite-input {
+    color: #172b4d !important;
+}
+.tp-theme-dark .tp-invite-box {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+.tp-theme-dark .tp-invite-input {
+    color: #f8fafc !important;
+}
+.tp-theme-dark .tp-team-invite-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+.tp-theme-dark .tp-team-invite-header {
+    border-bottom-color: #334155 !important;
+}
+.tp-theme-dark .tp-team-invite-header h2 {
+    color: #f8fafc !important;
+}
+.tp-theme-dark .tp-team-invite-banner {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+.tp-theme-dark .tp-team-invite-note {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+</style>
 @endsection
 
 @section('jqueryScript')

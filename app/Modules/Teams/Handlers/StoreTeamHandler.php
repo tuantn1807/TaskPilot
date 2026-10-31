@@ -63,8 +63,8 @@ class StoreTeamHandler
                 return ['success' => false, 'error' => 'Thành viên ' . $email . ' chưa tồn tại trong hệ thống.'];
             }
 
-            if ($this->repository->hasUser($team, $user->id)) {
-                return ['success' => false, 'error' => 'Thành viên ' . $email . ' đã có trong đội nhóm.'];
+            if ($user->id === $userId || $this->repository->hasUser($team, $user->id)) {
+                continue;
             }
 
             $this->repository->attachUser($team, $user->id, 'member', ['view_team']);

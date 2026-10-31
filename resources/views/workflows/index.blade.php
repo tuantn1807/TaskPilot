@@ -13,7 +13,7 @@
                     <i class="fa fa-sitemap"></i>
                     <span>TaskPilot Workflow Engine</span>
                 </div>
-                <h1 class="m-0" style="font-size: 24px; font-weight: 700; color: #0f172a;">
+                <h1 class="tp-wf-title m-0" style="font-size: 24px; font-weight: 700;">
                     Quản lý Quy trình &amp; Trạng thái
                 </h1>
                 <p class="m-0 text-muted small mt-1">
@@ -40,7 +40,7 @@
                         <div style="width: 32px; height: 32px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 15px;">
                             <i class="fa fa-list-ol"></i>
                         </div>
-                        <h4 class="m-0 font-weight-bold" style="font-size: 14px; color: #1e293b;">Trạng thái Linh hoạt</h4>
+                        <h4 class="tp-wf-feature-title m-0 font-weight-bold" style="font-size: 14px;">Trạng thái Linh hoạt</h4>
                     </div>
                     <p class="m-0 text-muted" style="font-size: 12.5px; line-height: 1.5;">
                         Không giới hạn ở các trạng thái cố định. Dễ dàng thêm mới, sửa tên, chọn màu sắc, icon, sắp xếp thứ tự và bật/tắt kích hoạt trạng thái trực tiếp trong từng dự án.
@@ -54,7 +54,7 @@
                         <div style="width: 32px; height: 32px; border-radius: 8px; background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 15px;">
                             <i class="fa fa-random"></i>
                         </div>
-                        <h4 class="m-0 font-weight-bold" style="font-size: 14px; color: #1e293b;">Quy tắc Chuyển trạng thái (State Transition)</h4>
+                        <h4 class="tp-wf-feature-title m-0 font-weight-bold" style="font-size: 14px;">Quy tắc Chuyển trạng thái (State Transition)</h4>
                     </div>
                     <p class="m-0 text-muted" style="font-size: 12.5px; line-height: 1.5;">
                         Thiết lập ma trận chuyển đổi: chỉ định rõ ràng từ trạng thái A được phép chuyển sang trạng thái nào (ví dụ: To Do &rarr; In Progress &rarr; Done).
@@ -98,7 +98,7 @@
                                                 📁
                                             </div>
                                             <div>
-                                                <a href="{{ route('projects.show', $project->id) }}" style="font-weight: 600; color: #0f172a; text-decoration: none;">
+                                                <a href="{{ route('projects.show', $project->id) }}" class="tp-wf-project-name" style="font-weight: 600; text-decoration: none;">
                                                     {{ $project->name }}
                                                 </a>
                                                 <div class="text-muted" style="font-size: 11px;">
@@ -150,4 +150,39 @@
         </div>
     </div>
 </div>
+
+<style>
+.tp-wf-title, .tp-wf-feature-title, .tp-wf-project-name {
+    color: #0f172a;
+}
+.tp-theme-dark .tp-wf-title,
+.tp-theme-dark .tp-wf-feature-title,
+.tp-theme-dark .tp-wf-project-name {
+    color: #f8fafc !important;
+}
+.tp-theme-dark .edit-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+.tp-theme-dark .edit-card-header {
+    background: #0f172a !important;
+    border-bottom-color: #334155 !important;
+}
+.tp-theme-dark .edit-card-title {
+    color: #f8fafc !important;
+}
+.tp-theme-dark .tp-table th {
+    background: #0f172a !important;
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+}
+.tp-theme-dark .tp-table td {
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+.tp-theme-dark .tp-header-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    border-color: #334155 !important;
+}
+</style>
 @endsection
