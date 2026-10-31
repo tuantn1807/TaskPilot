@@ -88,7 +88,9 @@
 
     function getEventMeta(eventType) {
         var type = (eventType || '').toLowerCase();
-        if (type.indexOf('task') !== -1) {
+        if (type.indexOf('mention') !== -1) {
+            return { icon: 'at', colorClass: 'icon-mention', isMention: true };
+        } else if (type.indexOf('task') !== -1) {
             return { icon: 'tasks', colorClass: 'icon-task' };
         } else if (type.indexOf('comment') !== -1) {
             return { icon: 'comment', colorClass: 'icon-comment' };
@@ -171,13 +173,14 @@
                 var isUnread = !n.read_at;
                 var time = escapeHtml(n.created_at_human || '');
                 var meta = getEventMeta(ndata.event_type);
+                var isMention = meta.isMention || (ndata.data && ndata.data.is_mention);
 
                 var linkUrl = nurl ? escapeHtml(nurl) : 'javascript:void(0)';
 
-                html += '<div class="tp-notif-item ' + (isUnread ? 'is-unread' : '') + '" data-id="' + n.id + '">';
-                html += '  <div class="tp-notif-icon ' + meta.colorClass + '"><i class="fa fa-' + meta.icon + '"></i></div>';
+                html += '<div class="tp-notif-item ' + (isUnread ? 'is-unread ' : '') + (isMention ? 'is-mention-priority ' : '') + '" data-id="' + n.id + '">';
+                html += '  <div class="tp-notif-icon ' + meta.colorClass + '" style="' + (isMention ? 'background:#fef2f2;color:#dc2626;' : '') + '"><i class="fa fa-' + meta.icon + '"></i></div>';
                 html += '  <a href="' + linkUrl + '" class="tp-notif-content-link">';
-                html += '    <div class="tp-notif-item-title">' + title + '</div>';
+                html += '    <div class="tp-notif-item-title">' + (isMention ? '<span style="background:#dc2626;color:#fff;font-size:10px;padding:1px 6px;border-radius:4px;margin-right:5px;vertical-align:middle;">@MENTION</span>' : '') + title + '</div>';
                 if (message) {
                     html += '    <div class="tp-notif-item-msg">' + message + '</div>';
                 }

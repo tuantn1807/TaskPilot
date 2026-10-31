@@ -440,6 +440,9 @@
 
                     <!-- View Toggle Buttons & AI Actions -->
                     <div class="tp-toolbar-actions d-flex align-items-center gap-2 ms-auto">
+                        <span class="tp-live-badge" title="Đồng bộ trạng thái Kanban theo thời gian thực">
+                            <span class="tp-live-dot"></span> Live Sync
+                        </span>
                         <AiBatchSuggest :tasks="unassignedOpenTasks" :project-id="project.id" @applied="applyBatchResults" @reset="applyAiTestReset" />
                         <div class="tp-view-toggle">
                             <button
@@ -1102,7 +1105,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import StatusBadge from '../common/StatusBadge.vue';
 import PriorityBadge from '../common/PriorityBadge.vue';
 import IssueTypeBadge from '../common/IssueTypeBadge.vue';
@@ -1124,6 +1127,54 @@ const props = defineProps({
 });
 
 const currentTab = ref(props.initialTab || 'overview');
+let kanbanSyncTimer = null;
+let lastKanbanFingerprint = null;
+
+async function syncRealtimeKanban() {
+    if (!props.project?.id || isDraggingCard || draggedTask.value) return;
+    try {
+        const res = await fetch(`/realtime/projects/${props.project.id}/kanban-state`, {
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin',
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data || !data.fingerprint) return;
+        if (lastKanbanFingerprint === null) {
+            lastKanbanFingerprint = data.fingerprint;
+            return;
+        }
+        if (data.fingerprint !== lastKanbanFingerprint) {
+            lastKanbanFingerprint = data.fingerprint;
+            const incoming = data.tasks || [];
+            const incomingMap = new Map(incoming.map(item => [Number(item.id), item]));
+            taskList.value = taskList.value.map(existing => {
+                const updated = incomingMap.get(Number(existing.id));
+                if (!updated) return existing;
+                return {
+                    ...existing,
+                    status: updated.status,
+                    priority: updated.priority,
+                    story_points: updated.story_points,
+                    assignee_id: updated.assignee_id,
+                    assignee: updated.assignee || null,
+                    sprint_id: updated.sprint_id,
+                    sprint: updated.sprint || existing.sprint,
+                };
+            });
+            incoming.forEach(item => {
+                if (!taskList.value.some(t => Number(t.id) === Number(item.id))) {
+                    taskList.value.unshift(item);
+                }
+            });
+            if (typeof window.showTaskPilotRealtimeToast === 'function') {
+                window.showTaskPilotRealtimeToast('Bảng Kanban vừa được đồng bộ theo thời gian thực!');
+            }
+        }
+    } catch (e) {
+        // Ignore transient network errors
+    }
+}
 
 onMounted(() => {
     if (window.location.hash === '#workflow') {
@@ -1132,6 +1183,24 @@ onMounted(() => {
         currentTab.value = 'board';
     } else if (window.location.hash === '#activity') {
         currentTab.value = 'activity';
+    }
+
+    if (window.Echo && typeof window.Echo.channel === 'function' && props.project?.id) {
+        try {
+            window.Echo.channel(`project.${props.project.id}.kanban`)
+                .listen('.kanban.task.updated', () => {
+                    syncRealtimeKanban();
+                });
+        } catch (err) {}
+    }
+
+    syncRealtimeKanban();
+    kanbanSyncTimer = setInterval(syncRealtimeKanban, 4500);
+});
+
+onBeforeUnmount(() => {
+    if (kanbanSyncTimer) {
+        clearInterval(kanbanSyncTimer);
     }
 });
 
