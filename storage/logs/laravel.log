@@ -174,3 +174,136 @@
 }  
 [2026-10-30 12:03:18] local.WARNING: Notification dispatch failed: The "tls" scheme is not supported; supported schemes for mailer "smtp" are: "smtp", "smtps".  
 [2026-10-30 12:03:59] local.WARNING: Notification dispatch failed: The "tls" scheme is not supported; supported schemes for mailer "smtp" are: "smtp", "smtps".  
+[2026-10-31 16:21:20] local.ERROR: Call to undefined relationship [sprint] on model [ProjectsManager\Task]. {"userId":7,"exception":"[object] (Illuminate\\Database\\Eloquent\\RelationNotFoundException(code: 0): Call to undefined relationship [sprint] on model [ProjectsManager\\Task]. at /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/RelationNotFoundException.php:35)
+[stacktrace]
+#0 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1010): Illuminate\\Database\\Eloquent\\RelationNotFoundException::make()
+#1 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Relations/Relation.php(155): Illuminate\\Database\\Eloquent\\Builder->{closure:Illuminate\\Database\\Eloquent\\Builder::getRelation():1006}()
+#2 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Relations/Relation.php(131): Illuminate\\Database\\Eloquent\\Relations\\Relation::withoutConstraints()
+#3 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1006): Illuminate\\Database\\Eloquent\\Relations\\Relation::noConstraintsForRelation()
+#4 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(980): Illuminate\\Database\\Eloquent\\Builder->getRelation()
+#5 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(960): Illuminate\\Database\\Eloquent\\Builder->eagerLoadRelation()
+#6 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(926): Illuminate\\Database\\Eloquent\\Builder->eagerLoadRelations()
+#7 /home/tuantn1807/project/TaskPilot/app/Http/Controllers/RealtimeAndMentionController.php(86): Illuminate\\Database\\Eloquent\\Builder->get()
+#8 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(54): ProjectsManager\\Http\\Controllers\\RealtimeAndMentionController->kanbanState()
+#9 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(43): Illuminate\\Routing\\Controller->callAction()
+#10 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Route.php(276): Illuminate\\Routing\\ControllerDispatcher->dispatch()
+#11 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Route.php(216): Illuminate\\Routing\\Route->runController()
+#12 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(834): Illuminate\\Routing\\Route->run()
+#13 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Routing\\Router->{closure:Illuminate\\Routing\\Router::runRouteWithinStack():833}()
+#14 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php(52): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}()
+#15 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle()
+#16 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(63): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#17 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Auth\\Middleware\\Authenticate->handle()
+#18 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestForgery.php(104): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#19 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestForgery->handle()
+#20 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php(48): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#21 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\View\\Middleware\\ShareErrorsFromSession->handle()
+#22 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php(120): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#23 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php(63): Illuminate\\Session\\Middleware\\StartSession->handleStatefulRequest()
+#24 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Session\\Middleware\\StartSession->handle()
+#25 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/AddQueuedCookiesToResponse.php(36): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#26 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse->handle()
+#27 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/EncryptCookies.php(74): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#28 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Cookie\\Middleware\\EncryptCookies->handle()
+#29 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(137): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#30 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(833): Illuminate\\Pipeline\\Pipeline->then()
+#31 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(812): Illuminate\\Routing\\Router->runRouteWithinStack()
+#32 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(776): Illuminate\\Routing\\Router->runRoute()
+#33 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(765): Illuminate\\Routing\\Router->dispatchToRoute()
+#34 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(200): Illuminate\\Routing\\Router->dispatch()
+#35 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Kernel->{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}()
+#36 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}()
+#37 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Http\\Middleware\\TrustProxies->handle()
+#38 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#39 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#40 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle()
+#41 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#42 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#43 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle()
+#44 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#45 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Http\\Middleware\\ValidatePostSize->handle()
+#46 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#47 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle()
+#48 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(137): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#49 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then()
+#50 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter()
+#51 /home/tuantn1807/project/TaskPilot/public/index.php(54): Illuminate\\Foundation\\Http\\Kernel->handle()
+#52 /home/tuantn1807/project/TaskPilot/server.php(21): require_once('...')
+#53 {main}
+"} 
+[2026-10-31 16:21:25] local.ERROR: Call to undefined relationship [sprint] on model [ProjectsManager\Task]. {"userId":7,"exception":"[object] (Illuminate\\Database\\Eloquent\\RelationNotFoundException(code: 0): Call to undefined relationship [sprint] on model [ProjectsManager\\Task]. at /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/RelationNotFoundException.php:35)
+[stacktrace]
+#0 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1010): Illuminate\\Database\\Eloquent\\RelationNotFoundException::make()
+#1 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Relations/Relation.php(155): Illuminate\\Database\\Eloquent\\Builder->{closure:Illuminate\\Database\\Eloquent\\Builder::getRelation():1006}()
+#2 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Relations/Relation.php(131): Illuminate\\Database\\Eloquent\\Relations\\Relation::withoutConstraints()
+#3 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(1006): Illuminate\\Database\\Eloquent\\Relations\\Relation::noConstraintsForRelation()
+#4 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(980): Illuminate\\Database\\Eloquent\\Builder->getRelation()
+#5 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(960): Illuminate\\Database\\Eloquent\\Builder->eagerLoadRelation()
+#6 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(926): Illuminate\\Database\\Eloquent\\Builder->eagerLoadRelations()
+#7 /home/tuantn1807/project/TaskPilot/app/Http/Controllers/RealtimeAndMentionController.php(86): Illuminate\\Database\\Eloquent\\Builder->get()
+#8 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(54): ProjectsManager\\Http\\Controllers\\RealtimeAndMentionController->kanbanState()
+#9 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(43): Illuminate\\Routing\\Controller->callAction()
+#10 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Route.php(276): Illuminate\\Routing\\ControllerDispatcher->dispatch()
+#11 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Route.php(216): Illuminate\\Routing\\Route->runController()
+#12 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(834): Illuminate\\Routing\\Route->run()
+#13 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Routing\\Router->{closure:Illuminate\\Routing\\Router::runRouteWithinStack():833}()
+#14 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php(52): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}()
+#15 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle()
+#16 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(63): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#17 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Auth\\Middleware\\Authenticate->handle()
+#18 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestForgery.php(104): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#19 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestForgery->handle()
+#20 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php(48): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#21 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\View\\Middleware\\ShareErrorsFromSession->handle()
+#22 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php(120): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#23 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php(63): Illuminate\\Session\\Middleware\\StartSession->handleStatefulRequest()
+#24 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Session\\Middleware\\StartSession->handle()
+#25 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/AddQueuedCookiesToResponse.php(36): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#26 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse->handle()
+#27 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/EncryptCookies.php(74): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#28 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Cookie\\Middleware\\EncryptCookies->handle()
+#29 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(137): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#30 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(833): Illuminate\\Pipeline\\Pipeline->then()
+#31 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(812): Illuminate\\Routing\\Router->runRouteWithinStack()
+#32 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(776): Illuminate\\Routing\\Router->runRoute()
+#33 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Routing/Router.php(765): Illuminate\\Routing\\Router->dispatchToRoute()
+#34 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(200): Illuminate\\Routing\\Router->dispatch()
+#35 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Kernel->{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}()
+#36 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}()
+#37 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Http\\Middleware\\TrustProxies->handle()
+#38 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#39 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#40 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle()
+#41 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#42 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#43 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle()
+#44 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#45 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Http\\Middleware\\ValidatePostSize->handle()
+#46 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#47 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle()
+#48 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(137): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#49 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then()
+#50 /home/tuantn1807/project/TaskPilot/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter()
+#51 /home/tuantn1807/project/TaskPilot/public/index.php(54): Illuminate\\Foundation\\Http\\Kernel->handle()
+#52 /home/tuantn1807/project/TaskPilot/server.php(21): require_once('...')
+#53 {main}
+"} 
+[2026-10-31 16:31:40] local.INFO: Broadcasting [task.comment.created] on channels [task.2931.comments, project.74.kanban] with payload:
+{
+    "action": "created",
+    "commentable_id": 2931,
+    "commentable_type": "ProjectsManager\\Task",
+    "project_id": 74,
+    "comment": {
+        "id": 2,
+        "body": "<p><strong>@liyunfang<\/strong>&nbsp;aaa<\/p>",
+        "user_id": 7,
+        "user_name": "Tu\u1ea5n Tr\u1ea7n Nguy\u1ec5n",
+        "user_initials": "TU",
+        "created_at_human": "0 seconds ago",
+        "updated_at_ts": 1793464300
+    },
+    "socket": null
+}  
+[2026-10-31 16:31:40] local.WARNING: Notification dispatch failed: The "tls" scheme is not supported; supported schemes for mailer "smtp" are: "smtp", "smtps".  
+[2026-10-31 16:31:40] local.WARNING: Notification dispatch failed: The "tls" scheme is not supported; supported schemes for mailer "smtp" are: "smtp", "smtps".  

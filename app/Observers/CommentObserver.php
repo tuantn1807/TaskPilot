@@ -3,6 +3,7 @@
 namespace ProjectsManager\Observers;
 
 use ProjectsManager\Comment;
+use ProjectsManager\Events\TaskCommentCreated;
 use ProjectsManager\Services\ActivityLogger;
 use ProjectsManager\Services\NotificationService;
 use ProjectsManager\User;
@@ -12,6 +13,13 @@ class CommentObserver
     public function created(Comment $comment): void
     {
         $projectId = $this->resolveProjectId($comment);
+
+        try {
+            event(new TaskCommentCreated($comment, 'created', $projectId));
+        } catch (\Throwable $e) {
+            // Continue even if broadcasting driver is not active
+        }
+
         if (! $projectId) {
             return;
         }
@@ -21,7 +29,7 @@ class CommentObserver
             action: ActivityLogger::ACTION_COMMENTED,
             userId: $comment->user_id,
             subject: $comment,
-            meta: mb_substr((string) $comment->body, 0, 120),
+            meta: mb_substr(strip_tags((string) $comment->body), 0, 120),
         );
 
         $project = \ProjectsManager\Project::find($projectId);
@@ -33,11 +41,22 @@ class CommentObserver
         $url = $this->resolveUrl($comment);
         $subjectLabel = $this->resolveSubjectLabel($comment);
 
+        // Priority @Mention notifications
+        NotificationService::notifyMentions(
+            content: (string) $comment->body,
+            project: $project,
+            actor: $actor,
+            subjectLabel: 'bình luận trên ' . $subjectLabel,
+            url: $url ? ($url . '#comment-' . $comment->id) : null,
+            extraData: ['comment_id' => $comment->id, 'issue_type' => $comment->commentable_type],
+        );
+
+        $plainSnippet = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string) $comment->body), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
         NotificationService::sendToProject(
             $project,
             NotificationService::EVENT_COMMENT_CREATED,
             'Bình luận mới trên ' . $subjectLabel,
-            $actor?->name . ' đã bình luận: ' . mb_substr((string) $comment->body, 0, 120) . '...',
+            $actor?->name . ' đã bình luận: ' . mb_substr($plainSnippet, 0, 120) . (mb_strlen($plainSnippet) > 120 ? '...' : ''),
             $actor,
             ['issue_type' => $comment->commentable_type],
             $url,
@@ -47,6 +66,12 @@ class CommentObserver
     public function updated(Comment $comment): void
     {
         $projectId = $this->resolveProjectId($comment);
+
+        try {
+            event(new TaskCommentCreated($comment, 'updated', $projectId));
+        } catch (\Throwable $e) {
+        }
+
         if (! $projectId) {
             return;
         }
@@ -74,6 +99,19 @@ class CommentObserver
         $actor = User::find(auth()->id());
         $url = $this->resolveUrl($comment);
         $subjectLabel = $this->resolveSubjectLabel($comment);
+
+        if (array_key_exists('body', $changes)) {
+            $originalBody = (string) ($comment->getOriginal('body') ?? '');
+            NotificationService::notifyMentions(
+                content: (string) $comment->body,
+                project: $project,
+                actor: $actor,
+                subjectLabel: 'bình luận trên ' . $subjectLabel,
+                url: $url ? ($url . '#comment-' . $comment->id) : null,
+                extraData: ['comment_id' => $comment->id, 'issue_type' => $comment->commentable_type],
+                previousContent: $originalBody,
+            );
+        }
 
         NotificationService::sendToProject(
             $project,

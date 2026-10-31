@@ -326,6 +326,9 @@
     });
 })();
 </script>
+@auth
+<script src="{{ asset('js/ckeditor-mentions-realtime.js') }}?v={{ file_exists(public_path('js/ckeditor-mentions-realtime.js')) ? filemtime(public_path('js/ckeditor-mentions-realtime.js')) : time() }}"></script>
+@endauth
 @stack('scripts')
 </body>
 </html>

@@ -23,6 +23,7 @@ use ProjectsManager\Modules\Notifications\Controllers\NotificationController;
 use ProjectsManager\Modules\Profile\Controllers\SkillsController;
 use ProjectsManager\Modules\Profile\Controllers\ProfileController;
 use ProjectsManager\Http\Controllers\QuickSearchController;
+use ProjectsManager\Http\Controllers\RealtimeAndMentionController;
 
 Route::view('/', 'welcome')->name('welcome');
 
@@ -160,4 +161,9 @@ Route::middleware('auth')->group(function (): void {
         Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('read-all');
         Route::delete('notifications/{id}', [NotificationController::class, 'destroy'])->name('destroy');
     });
+
+    // @Mention Autocomplete & Real-time Kanban / Comments Sync
+    Route::get('mentions/candidates', [RealtimeAndMentionController::class, 'mentionCandidates'])->name('mentions.candidates');
+    Route::get('realtime/projects/{project}/kanban-state', [RealtimeAndMentionController::class, 'kanbanState'])->name('realtime.projects.kanban');
+    Route::get('realtime/tasks/{task}/comments-state', [RealtimeAndMentionController::class, 'taskCommentsState'])->name('realtime.tasks.comments');
 });

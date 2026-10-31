@@ -2,6 +2,7 @@
 
 namespace ProjectsManager\Observers;
 
+use ProjectsManager\Events\KanbanTaskUpdated;
 use ProjectsManager\Services\ActivityLogger;
 use ProjectsManager\Services\NotificationService;
 use ProjectsManager\Task;
@@ -25,6 +26,22 @@ class TaskObserver
 
         $project = $task->project;
         $actor = User::find($task->user_id);
+
+        try {
+            event(new KanbanTaskUpdated($task, ['created' => true], $actor));
+        } catch (\Throwable $e) {
+        }
+
+        if ($project && !empty($task->description)) {
+            NotificationService::notifyMentions(
+                content: (string) $task->description,
+                project: $project,
+                actor: $actor,
+                subjectLabel: 'mô tả công việc "' . $task->name . '"',
+                url: '/tasks/' . $task->id,
+                extraData: ['issue_key' => $task->issue_key, 'task_id' => $task->id],
+            );
+        }
 
         if ($project) {
             NotificationService::sendToProject(
@@ -86,7 +103,24 @@ class TaskObserver
         $project = $task->project;
         $actor = User::find(auth()->id());
 
+        try {
+            event(new KanbanTaskUpdated($task, $humanChanges, $actor));
+        } catch (\Throwable $e) {
+        }
+
         if ($project) {
+            if (array_key_exists('description', $humanChanges) && !empty($task->description)) {
+                NotificationService::notifyMentions(
+                    content: (string) $task->description,
+                    project: $project,
+                    actor: $actor,
+                    subjectLabel: 'mô tả công việc "' . $task->name . '"',
+                    url: '/tasks/' . $task->id,
+                    extraData: ['issue_key' => $task->issue_key, 'task_id' => $task->id],
+                    previousContent: (string) ($original['description'] ?? ''),
+                );
+            }
+
             $message = $actor?->name . ' đã cập nhật công việc ' . ($task->issue_key ?? '') . ' "' . $task->name . '".';
 
             if (array_key_exists('assignee_id', $humanChanges) && $task->assignee_id) {
