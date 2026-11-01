@@ -712,6 +712,84 @@ textarea#task-description-editor[style*="display:none"] {
                         </div>
                     </div>
                 </div>
+
+                <!-- 5. Development (Git Integration) Card -->
+                @if($task->project_id)
+                @php
+                    $taskKeyForGit = $task->issue_key ?: (($task->project->project_code ?? 'TP') . '-' . $task->id);
+                    $gitPrefix = ($task->issue_type === 'bug') ? 'fix' : 'feature';
+                    $suggestedBranch = $gitPrefix . '/' . $taskKeyForGit . '-' . \Illuminate\Support\Str::limit(\Illuminate\Support\Str::slug($task->name), 36, '');
+                    $taskGitLinks = collect();
+                    if (\Illuminate\Support\Facades\Schema::hasTable('project_development_links')) {
+                        $qGit = \ProjectsManager\ProjectDevelopmentLink::where('project_id', $task->project_id);
+                        if (\Illuminate\Support\Facades\Schema::hasColumn('project_development_links', 'task_id')) {
+                            $qGit->where(function ($sub) use ($task, $taskKeyForGit) {
+                                $sub->where('task_id', $task->id)
+                                    ->orWhere('label', 'like', '%' . $taskKeyForGit . '%');
+                            });
+                        } else {
+                            $qGit->where('label', 'like', '%' . $taskKeyForGit . '%');
+                        }
+                        $taskGitLinks = $qGit->latest('linked_at')->get();
+                    }
+                @endphp
+                <div class="edit-card mb-4">
+                    <div class="edit-card-header d-flex justify-content-between align-items-center">
+                        <h2 class="edit-card-title">
+                            <i class="fa fa-code-fork" style="color: #2563eb;"></i>
+                            Development (Git)
+                        </h2>
+                        <a href="{{ route('projects.development.index', $task->project_id) }}" class="small font-weight-bold" style="color: #2563eb; text-decoration: none;">
+                            Mở Git Hub <i class="fa fa-external-link"></i>
+                        </a>
+                    </div>
+                    <div class="edit-card-body">
+                        @if($taskGitLinks->isEmpty())
+                            <div class="small text-muted mb-2">
+                                Chưa có nhánh hoặc commit nào gắn với <strong>{{ $taskKeyForGit }}</strong>.
+                            </div>
+                        @else
+                            <div class="mb-3" style="display: flex; flex-direction: column; gap: 8px;">
+                                @foreach($taskGitLinks as $gLink)
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12.5px;">
+                                        <div style="min-width: 0; flex: 1;">
+                                            <span style="font-weight: 700; color: #475569; text-transform: uppercase; font-size: 10.5px; margin-right: 4px;">
+                                                [{{ $gLink->type }}]
+                                            </span>
+                                            <a href="{{ $gLink->url }}" target="_blank" rel="noopener" style="font-weight: 700; color: #2563eb; text-decoration: none; word-break: break-all;">
+                                                {{ $gLink->label }}
+                                            </a>
+                                        </div>
+                                        <span style="font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; text-transform: uppercase;">
+                                            {{ $gLink->status ?: 'active' }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <div class="small font-weight-bold mb-1" style="color: #334155;">Lệnh tạo nhánh nhanh:</div>
+                        <div style="background: #0f172a; color: #e2e8f0; padding: 8px 10px; border-radius: 8px; font-family: monospace; font-size: 11.5px; display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="overflow-x: auto; white-space: nowrap;">git checkout -b {{ $suggestedBranch }}</span>
+                            <button type="button" onclick="navigator.clipboard.writeText('git checkout -b {{ addslashes($suggestedBranch) }}'); showTaskToast('Đã sao chép lệnh tạo nhánh Git!');" style="background: #1e293b; border: 1px solid #475569; color: #fff; border-radius: 5px; padding: 2px 8px; cursor: pointer; font-size: 11px; flex-shrink: 0;">
+                                <i class="fa fa-copy"></i>
+                            </button>
+                        </div>
+
+                        <form method="POST" action="{{ route('projects.development.github.branch', $task->project_id) }}">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
+                            <input type="hidden" name="branch_name" value="{{ $suggestedBranch }}">
+                            <input type="hidden" name="push_to_github" value="1">
+                            <input type="hidden" name="auto_move_task" value="1">
+                            <button type="submit" class="tp-btn tp-btn-primary btn-sm w-100" style="justify-content: center;">
+                                <i class="fa fa-github" style="color: #fff !important;"></i>
+                                <span>Tạo nhánh GitHub ({{ $taskKeyForGit }})</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>

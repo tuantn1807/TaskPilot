@@ -60,5 +60,6 @@ class Task extends Model
     public function skills() { return $this->hasMany(TaskSkill::class, 'task_id'); }
     public function aiRecommendations() { return $this->hasMany(AiAssigneeRecommendation::class, 'task_id'); }
     public function approver() { return $this->belongsTo(User::class, 'approved_by'); }
+    public function developmentLinks() { return $this->hasMany(ProjectDevelopmentLink::class, 'task_id')->latest('linked_at'); }
 }
 

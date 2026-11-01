@@ -41,4 +41,10 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'github' => [
+        'token' => env('GITHUB_TOKEN'),
+        'webhook_secret' => env('GITHUB_WEBHOOK_SECRET'),
+        'default_repo' => env('GITHUB_DEFAULT_REPO', 'https://github.com/tuantn1807/TaskPilot'),
+    ],
+
 ];

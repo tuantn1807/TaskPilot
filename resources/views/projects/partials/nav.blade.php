@@ -8,6 +8,8 @@
         str_starts_with($currentRoute, 'projects.roles') || str_starts_with($currentRoute, 'projects.permissions') => 'roles',
         $currentRoute === 'projects.timeline' => 'timeline',
         $currentRoute === 'projects.roadmap' => 'roadmap',
+        str_starts_with($currentRoute, 'projects.documents') => 'documents',
+        str_starts_with($currentRoute, 'projects.development') => 'development',
         str_starts_with($currentRoute, 'projects.reports') => 'reports',
         str_starts_with($currentRoute, 'meetings.') => 'meetings',
         default => '',
@@ -46,6 +48,14 @@
     <a href="{{ route('projects.roadmap', $project) }}" class="pd-nav-item {{ $currentTab === 'roadmap' ? 'active' : '' }}">
         <i class="fa fa-calendar-check-o"></i>
         <span>Lịch biểu</span>
+    </a>
+    <a href="{{ route('projects.documents.index', $project) }}" class="pd-nav-item {{ $currentTab === 'documents' ? 'active' : '' }}">
+        <i class="fa fa-file-text-o"></i>
+        <span>Tài liệu</span>
+    </a>
+    <a href="{{ route('projects.development.index', $project) }}" class="pd-nav-item {{ $currentTab === 'development' ? 'active' : '' }}">
+        <i class="fa fa-code-fork"></i>
+        <span>Development (Git)</span>
     </a>
     @if(\Illuminate\Support\Facades\Route::has('projects.reports.show'))
     <a href="{{ route('projects.reports.show', $project) }}" class="pd-nav-item {{ $currentTab === 'reports' ? 'active' : '' }}">

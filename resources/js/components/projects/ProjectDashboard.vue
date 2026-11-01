@@ -105,6 +105,14 @@
                     <i class="fa fa-calendar-check-o"></i>
                     <span>Lịch biểu</span>
                 </a>
+                <a :href="`/projects/${project.id}/documents`" class="pd-nav-item">
+                    <i class="fa fa-file-text-o"></i>
+                    <span>Tài liệu</span>
+                </a>
+                <a :href="`/projects/${project.id}/development`" class="pd-nav-item">
+                    <i class="fa fa-code-fork"></i>
+                    <span>Development (Git)</span>
+                </a>
                 <a :href="`/projects/${project.id}/reports`" class="pd-nav-item">
                     <i class="fa fa-bar-chart"></i>
                     <span>Báo cáo</span>

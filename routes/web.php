@@ -26,6 +26,7 @@ use ProjectsManager\Http\Controllers\QuickSearchController;
 use ProjectsManager\Http\Controllers\RealtimeAndMentionController;
 
 Route::view('/', 'welcome')->name('welcome');
+Route::post('webhooks/github/{project}', [ProjectDevelopmentController::class, 'handleGithubWebhook'])->name('webhooks.github');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -148,9 +149,15 @@ Route::middleware('auth')->group(function (): void {
     Route::post('projects/{project}/forms/{form}/responses', [ProjectFormsController::class, 'submitResponse'])->name('projects.forms.responses.store');
     Route::delete('projects/{project}/forms/{form}', [ProjectFormsController::class, 'destroyForm'])->name('projects.forms.destroy');
 
-    // Development
+    // Development (Git & GitHub Integration)
     Route::get('projects/{project}/development', [ProjectDevelopmentController::class, 'index'])->name('projects.development.index');
     Route::post('projects/{project}/development', [ProjectDevelopmentController::class, 'store'])->name('projects.development.store');
+    Route::post('projects/{project}/development/repo', [ProjectDevelopmentController::class, 'updateRepo'])->name('projects.development.repo');
+    Route::post('projects/{project}/development/sync', [ProjectDevelopmentController::class, 'syncGit'])->name('projects.development.sync');
+    Route::post('projects/{project}/development/github/branch', [ProjectDevelopmentController::class, 'createGithubBranch'])->name('projects.development.github.branch');
+    Route::post('projects/{project}/development/github/pr', [ProjectDevelopmentController::class, 'createGithubPullRequest'])->name('projects.development.github.pr');
+    Route::get('projects/{project}/development/github/check', [ProjectDevelopmentController::class, 'checkGithubConnection'])->name('projects.development.github.check');
+    Route::match(['post', 'patch', 'put'], 'projects/{project}/development/{link}/status', [ProjectDevelopmentController::class, 'updateStatus'])->name('projects.development.status');
     Route::delete('projects/{project}/development/{link}', [ProjectDevelopmentController::class, 'destroy'])->name('projects.development.destroy');
 
     Route::name('notifications.')->middleware('auth')->group(function (): void {

@@ -16,10 +16,12 @@ class Project extends Model
         'days', 'status', 'archived', 'project_type', 'workflow_config', 'team_name', 'project_code',
         'start_date', 'end_date', 'budget', 'priority', 'customer_name', 'location',
         'objective', 'category_id', 'team_id',
+        'git_repo_url', 'git_default_branch', 'git_provider', 'git_token', 'git_webhook_secret', 'git_auto_transition',
     ];
 
     protected $casts = [
         'archived' => 'boolean',
+        'git_auto_transition' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
         'budget' => 'decimal:2',
