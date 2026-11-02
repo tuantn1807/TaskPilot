@@ -66,6 +66,10 @@
                             <i class="fa fa-bolt tp-link-icon"></i>
                             <span class="tp-link-text">Sprints</span>
                         </a>
+                        <a href="{{ route('tql.index') }}" class="tp-sidebar-link {{ request()->routeIs('tql.*') ? 'active' : '' }}" data-title="TQL Search">
+                            <i class="fa fa-terminal tp-link-icon"></i>
+                            <span class="tp-link-text">TQL Search</span>
+                        </a>
                         <a href="{{ route('workflows.index') }}" class="tp-sidebar-link {{ request()->routeIs('workflows.*') ? 'active' : '' }}" data-title="Quy trình">
                             <i class="fa fa-sitemap tp-link-icon"></i>
                             <span class="tp-link-text">Quy trình</span>

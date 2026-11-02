@@ -3,6 +3,9 @@
     $currentTab = $active ?? match(true) {
         str_starts_with($currentRoute, 'sprints.') => 'sprints',
         $currentRoute === 'projects.board' => 'board',
+        str_starts_with($currentRoute, 'projects.retrospectives') => 'retrospectives',
+        str_starts_with($currentRoute, 'projects.tql') => 'tql',
+        str_starts_with($currentRoute, 'projects.custom-fields') => 'custom_fields',
         $currentRoute === 'projects.show' => 'overview',
         str_starts_with($currentRoute, 'projects.members') => 'members',
         str_starts_with($currentRoute, 'projects.roles') || str_starts_with($currentRoute, 'projects.permissions') => 'roles',
@@ -28,6 +31,18 @@
     <a href="{{ route('projects.board', $project) }}" class="pd-nav-item {{ $currentTab === 'board' ? 'active' : '' }}">
         <i class="fa fa-columns"></i>
         <span>Bảng (Board)</span>
+    </a>
+    <a href="{{ route('projects.retrospectives.index', $project) }}" class="pd-nav-item {{ $currentTab === 'retrospectives' ? 'active' : '' }}">
+        <i class="fa fa-retweet"></i>
+        <span>Retrospective</span>
+    </a>
+    <a href="{{ route('projects.tql.index', $project) }}" class="pd-nav-item {{ $currentTab === 'tql' ? 'active' : '' }}">
+        <i class="fa fa-terminal"></i>
+        <span>TQL Search</span>
+    </a>
+    <a href="{{ route('projects.custom-fields.index', $project) }}" class="pd-nav-item {{ $currentTab === 'custom_fields' ? 'active' : '' }}">
+        <i class="fa fa-sliders"></i>
+        <span>Trường tùy chỉnh</span>
     </a>
     <a href="{{ route('projects.show', $project) }}" class="pd-nav-item {{ $currentTab === 'overview' ? 'active' : '' }}">
         <i class="fa fa-th-large"></i>

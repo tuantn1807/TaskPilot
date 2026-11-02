@@ -180,14 +180,28 @@ class TasksController extends Controller
     public function show(Task $task): View
     {
         $task = $this->showTaskHandler->handle($task);
+        $task->load([
+            'links.targetTask.assignee',
+            'links.creator',
+            'customFieldValues.customField',
+        ]);
         $formData = $this->createTaskHandler->handle(Auth::id(), $task->project_id);
         $effectiveWorkflow = $task->project ? $task->project->effective_workflow : \ProjectsManager\Project::defaultWorkflowForType('software');
         $activeStatuses = $task->project ? $task->project->getActiveStatuses() : ($effectiveWorkflow['statuses'] ?? []);
+
+        $linkableTasks = Task::where('project_id', $task->project_id)
+            ->where('id', '!=', $task->id)
+            ->orderByDesc('id')
+            ->get(['id', 'name', 'issue_key', 'status', 'priority', 'issue_type']);
+
+        $customFields = $task->project ? $task->project->customFields : collect();
 
         return view('tasks.show', array_merge($formData, [
             'task' => $task,
             'effective_workflow' => $effectiveWorkflow,
             'active_statuses' => $activeStatuses,
+            'linkable_tasks' => $linkableTasks,
+            'custom_fields' => $customFields,
             'worklogs' => $task->worklogs()->with(['user', 'assignee'])->latest('logged_at')->get(),
             'comments' => $task->comments()->with('user')->latest()->get(),
         ]));

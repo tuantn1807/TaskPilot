@@ -16,6 +16,10 @@ use ProjectsManager\Modules\Projects\Controllers\ProjectDocumentsController;
 use ProjectsManager\Modules\Projects\Controllers\ProjectFormsController;
 use ProjectsManager\Modules\Projects\Controllers\ProjectDevelopmentController;
 use ProjectsManager\Modules\Projects\Controllers\ProjectReportsController;
+use ProjectsManager\Modules\Projects\Controllers\RetrospectivesController;
+use ProjectsManager\Modules\Projects\Controllers\CustomFieldsController;
+use ProjectsManager\Modules\Projects\Controllers\TqlController;
+use ProjectsManager\Modules\Tasks\Controllers\TaskLinksController;
 use ProjectsManager\Modules\Tasks\Controllers\SprintsController;
 use ProjectsManager\Modules\Tasks\Controllers\TasksController;
 use ProjectsManager\Modules\Teams\Controllers\TeamsController;
@@ -94,6 +98,9 @@ Route::middleware('auth')->group(function (): void {
     Route::post('tasks/{task}/worklog', [TasksController::class, 'worklog'])->name('tasks.worklog');
     Route::post('tasks/{task}/approve', [TasksController::class, 'approve'])->name('tasks.approve');
     Route::post('tasks/{task}/test-result', [TasksController::class, 'saveTestResult'])->name('tasks.test-result');
+    Route::post('tasks/{task}/links', [TaskLinksController::class, 'store'])->name('tasks.links.store');
+    Route::delete('tasks/links/{link}', [TaskLinksController::class, 'destroy'])->name('tasks.links.destroy');
+    Route::post('tasks/{task}/custom-fields', [CustomFieldsController::class, 'saveTaskValues'])->name('tasks.custom-fields.save');
 
     Route::get('sprints', [SprintsController::class, 'mainIndex'])->name('sprints.main');
     Route::get('projects/{project}/sprints', [SprintsController::class, 'index'])->name('sprints.index');
@@ -159,6 +166,26 @@ Route::middleware('auth')->group(function (): void {
     Route::get('projects/{project}/development/github/check', [ProjectDevelopmentController::class, 'checkGithubConnection'])->name('projects.development.github.check');
     Route::match(['post', 'patch', 'put'], 'projects/{project}/development/{link}/status', [ProjectDevelopmentController::class, 'updateStatus'])->name('projects.development.status');
     Route::delete('projects/{project}/development/{link}', [ProjectDevelopmentController::class, 'destroy'])->name('projects.development.destroy');
+
+    // Scrum Retrospectives
+    Route::get('projects/{project}/retrospectives', [RetrospectivesController::class, 'index'])->name('projects.retrospectives.index');
+    Route::post('projects/{project}/retrospectives/{retrospective}/cards', [RetrospectivesController::class, 'storeCard'])->name('projects.retrospectives.cards.store');
+    Route::post('projects/{project}/retrospectives/cards/{card}/vote', [RetrospectivesController::class, 'vote'])->name('projects.retrospectives.cards.vote');
+    Route::delete('projects/{project}/retrospectives/cards/{card}', [RetrospectivesController::class, 'destroyCard'])->name('projects.retrospectives.cards.destroy');
+    Route::post('projects/{project}/retrospectives/cards/{card}/convert', [RetrospectivesController::class, 'convertToTask'])->name('projects.retrospectives.cards.convert');
+
+    // Project Custom Fields
+    Route::get('projects/{project}/custom-fields', [CustomFieldsController::class, 'index'])->name('projects.custom-fields.index');
+    Route::post('projects/{project}/custom-fields', [CustomFieldsController::class, 'store'])->name('projects.custom-fields.store');
+    Route::delete('projects/{project}/custom-fields/{customField}', [CustomFieldsController::class, 'destroy'])->name('projects.custom-fields.destroy');
+
+    // TQL (TaskPilot Query Language - Jira-like JQL)
+    Route::get('tql', [TqlController::class, 'index'])->name('tql.index');
+    Route::get('projects/{project}/tql', [TqlController::class, 'index'])->name('projects.tql.index');
+    Route::post('tql/saved-filters', [TqlController::class, 'saveFilter'])->name('tql.filters.store');
+    Route::delete('tql/saved-filters/{filter}', [TqlController::class, 'deleteFilter'])->name('tql.filters.destroy');
+    Route::get('tql/export', [TqlController::class, 'export'])->name('tql.export');
+    Route::get('projects/{project}/tql/export', [TqlController::class, 'export'])->name('projects.tql.export');
 
     Route::name('notifications.')->middleware('auth')->group(function (): void {
         Route::get('notifications', [NotificationController::class, 'index'])->name('index');

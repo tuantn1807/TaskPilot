@@ -61,5 +61,17 @@ class Task extends Model
     public function aiRecommendations() { return $this->hasMany(AiAssigneeRecommendation::class, 'task_id'); }
     public function approver() { return $this->belongsTo(User::class, 'approved_by'); }
     public function developmentLinks() { return $this->hasMany(ProjectDevelopmentLink::class, 'task_id')->latest('linked_at'); }
+    public function customFieldValues() { return $this->hasMany(TaskCustomFieldValue::class, 'task_id')->with('customField'); }
+    public function links() { return $this->hasMany(TaskLink::class, 'source_task_id')->with('targetTask'); }
+    public function blockers() { return $this->hasMany(TaskLink::class, 'source_task_id')->where('link_type', 'is_blocked_by')->with('targetTask'); }
+    public function isBlocked(): bool
+    {
+        $doneStatuses = ['done', 'closed', 'completed', 'resolved'];
+        return $this->blockers()
+            ->whereHas('targetTask', function ($q) use ($doneStatuses) {
+                $q->whereNotIn('status', $doneStatuses);
+            })
+            ->exists();
+    }
 }
 

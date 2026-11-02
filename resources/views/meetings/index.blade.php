@@ -51,7 +51,7 @@
                             {{ $meeting->starts_at ? $meeting->starts_at->format('d/m/Y H:i') : 'Chưa đặt giờ' }}
                             · {{ $meeting->members->count() }} thành viên
                             @if($meeting->description)
-                                · <span class="text-muted">{{ Str::limit($meeting->description, 50) }}</span>
+                                · <span class="text-muted">{{  \Illuminate\Support\Str::limit($meeting->description, 50) }}</span>
                             @endif
                         </small>
                     </span>

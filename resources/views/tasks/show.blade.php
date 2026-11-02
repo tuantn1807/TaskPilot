@@ -226,6 +226,26 @@ textarea#task-description-editor[style*="display:none"] {
         </div>
 
         <!-- 2-Column Grid Layout (70 / 30) -->
+        @if($task->isBlocked())
+            <div class="alert alert-warning d-flex align-items-center gap-3 mb-4" style="border-left: 5px solid #ef4444; background: #fef2f2; color: #991b1b; border-radius: 8px; padding: 14px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <i class="fa fa-exclamation-triangle fa-2x" style="color: #ef4444;"></i>
+                <div>
+                    <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Cảnh báo Blocker (Bị chặn tiến độ):</div>
+                    <div style="font-size: 13px;">
+                        Công việc này đang bị phụ thuộc và chưa thể hoàn tất do các công việc tiền đề sau chưa xong:
+                        @foreach($task->blockers as $blockerLink)
+                            @php $bt = $blockerLink->targetTask; @endphp
+                            @if($bt && !in_array(strtolower($bt->status), ['done', 'closed', 'completed', 'resolved']))
+                                <a href="{{ route('tasks.show', $bt) }}" class="fw-bold ms-1" style="color: #dc2626; text-decoration: underline;" target="_blank">
+                                    [{{ $bt->issue_key ?? 'TP-'.$bt->id }}] {{ $bt->name }} ({{ strtoupper($bt->status) }})
+                                </a>{{ !$loop->last ? ';' : '' }}
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="edit-grid">
             <!-- Main Content (~70%) -->
             <div class="edit-col">
@@ -257,6 +277,128 @@ textarea#task-description-editor[style*="display:none"] {
                         @else
                             <div class="tp-description-text ck-content-body w-100">
                                 {!! $task->description ? $task->description : '<span class="text-muted">Chưa có mô tả chi tiết cho công việc này.</span>' !!}
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- 1.5. Linked Issues (Issue Links) Card -->
+                <div class="edit-card mb-4" id="linked-issues-card">
+                    <div class="edit-card-header d-flex justify-content-between align-items-center">
+                        <h2 class="edit-card-title">
+                            <i class="fa fa-link text-primary"></i>
+                            Liên kết công việc (Linked Issues)
+                            <span class="badge bg-secondary ms-1" style="font-size: 11px;">{{ $task->links->count() }}</span>
+                        </h2>
+                        @if($canEdit)
+                            <button type="button" class="btn btn-xs btn-outline-primary" onclick="toggleAddLinkForm()" style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 6px;">
+                                <i class="fa fa-plus me-1"></i>Thêm liên kết
+                            </button>
+                        @endif
+                    </div>
+
+                    <div class="edit-card-body">
+                        <!-- Add Link Form (collapsible) -->
+                        @if($canEdit)
+                        <div id="add-link-form-wrap" class="p-3 mb-3 bg-light rounded border" style="display: none;">
+                            <form action="{{ route('tasks.links.store', $task) }}" method="POST">
+                                @csrf
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-md-4 col-sm-12">
+                                        <label class="form-label small fw-bold text-muted mb-1">Loại liên kết</label>
+                                        <select name="link_type" class="form-select form-select-sm" required>
+                                            @foreach(\ProjectsManager\TaskLink::$linkTypes as $key => $meta)
+                                                <option value="{{ $key }}">{{ $meta['label'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <label class="form-label small fw-bold text-muted mb-1">Công việc cần liên kết</label>
+                                        <select name="target_task_id" class="form-select form-select-sm" required>
+                                            <option value="">-- Chọn công việc trong dự án --</option>
+                                            @foreach($linkable_tasks ?? [] as $lt)
+                                                <option value="{{ $lt->id }}">
+                                                    [{{ $lt->issue_key ?? 'TP-'.$lt->id }}] {{ $lt->name }} ({{ strtoupper($lt->status) }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2 col-sm-12 d-flex gap-2">
+                                        <button type="submit" class="btn btn-sm btn-primary flex-grow-1">Liên kết</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAddLinkForm()">&times;</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        @endif
+
+                        <!-- Linked Issues List grouped by Link Type -->
+                        @if($task->links->isEmpty())
+                            <div class="text-muted small py-2">
+                                <i class="fa fa-info-circle me-1"></i>Chưa có liên kết nào (Blocks, Relates to, Duplicates...). Nhấn <strong>"Thêm liên kết"</strong> để thiết lập quan hệ công việc.
+                            </div>
+                        @else
+                            @php
+                                $groupedLinks = $task->links->groupBy('link_type');
+                            @endphp
+                            <div class="d-flex flex-column gap-3">
+                                @foreach($groupedLinks as $typeKey => $links)
+                                    @php
+                                        $typeMeta = \ProjectsManager\TaskLink::$linkTypes[$typeKey] ?? [
+                                            'label' => $typeKey,
+                                            'badge_class' => 'bg-secondary text-white',
+                                            'icon' => 'fa-link'
+                                        ];
+                                    @endphp
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 mb-2 pb-1 border-bottom">
+                                            <span class="badge {{ $typeMeta['badge_class'] }}" style="font-size: 11px; padding: 4px 8px;">
+                                                <i class="fa {{ $typeMeta['icon'] }} me-1"></i>{{ $typeMeta['label'] }}
+                                            </span>
+                                            <span class="text-muted small">({{ $links->count() }})</span>
+                                        </div>
+                                        <div class="d-flex flex-column gap-2">
+                                            @foreach($links as $lnk)
+                                                @php
+                                                    $target = $lnk->targetTask;
+                                                    $isDone = $target ? in_array(strtolower((string)$target->status), ['done', 'closed', 'completed', 'resolved']) : false;
+                                                @endphp
+                                                @if($target)
+                                                <div class="d-flex justify-content-between align-items-center p-2 rounded border bg-white" style="font-size: 13px; {{ $typeKey === 'is_blocked_by' && !$isDone ? 'border-left: 4px solid #ef4444 !important; background: #fff5f5 !important;' : '' }}">
+                                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                        <span class="badge {{ $typeMeta['badge_class'] }}" style="font-size: 10px;">{{ $target->issue_type ?? 'task' }}</span>
+                                                        <a href="{{ route('tasks.show', $target) }}" class="fw-bold text-decoration-none" style="color: #2563eb;">
+                                                            {{ $target->issue_key ?? 'TP-'.$target->id }}
+                                                        </a>
+                                                        <span class="{{ $isDone ? 'text-decoration-line-through text-muted' : 'text-dark' }}">
+                                                            {{ $target->name }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <span class="badge {{ $isDone ? 'bg-success' : 'bg-warning text-dark' }}" style="font-size: 11px;">
+                                                            {{ strtoupper($target->status) }}
+                                                        </span>
+                                                        @if($target->assignee)
+                                                            <span class="text-muted small" title="Người phụ trách: {{ $target->assignee->name }}">
+                                                                <i class="fa fa-user me-1"></i>{{ $target->assignee->name }}
+                                                            </span>
+                                                        @endif
+                                                        @if($canEdit)
+                                                            <form action="{{ route('tasks.links.destroy', $lnk) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa liên kết này?');" style="display:inline;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-xs btn-link text-danger p-0 ms-2" title="Gỡ liên kết">
+                                                                    <i class="fa fa-times"></i>
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         @endif
                     </div>
@@ -713,6 +855,98 @@ textarea#task-description-editor[style*="display:none"] {
                     </div>
                 </div>
 
+                <!-- 4.5. Custom Fields Card -->
+                <div class="edit-card mb-4" id="custom-fields-card">
+                    <div class="edit-card-header d-flex justify-content-between align-items-center">
+                        <h2 class="edit-card-title">
+                            <i class="fa fa-sliders text-primary"></i>
+                            Trường tùy chỉnh (Custom Fields)
+                        </h2>
+                        @if($task->project)
+                            <a href="{{ route('projects.custom-fields.index', $task->project) }}" class="small text-muted text-decoration-none" title="Cài đặt trường tùy chỉnh">
+                                <i class="fa fa-cog"></i>
+                            </a>
+                        @endif
+                    </div>
+                    <div class="edit-card-body">
+                        @if(($custom_fields ?? collect())->isEmpty())
+                            <div class="text-muted small py-2">
+                                Dự án chưa thiết lập trường tùy chỉnh nào. 
+                                @if($task->project)
+                                    <a href="{{ route('projects.custom-fields.index', $task->project) }}" class="text-primary text-decoration-none">
+                                        + Thêm trường mới
+                                    </a>
+                                @endif
+                            </div>
+                        @else
+                            <form action="{{ route('tasks.custom-fields.save', $task) }}" method="POST">
+                                @csrf
+                                <div class="d-flex flex-column gap-3">
+                                    @foreach($custom_fields as $cf)
+                                        @php
+                                            $valObj = $task->customFieldValues->firstWhere('custom_field_id', $cf->id);
+                                            $currentVal = $valObj ? $valObj->value : '';
+                                        @endphp
+                                        <div class="sidebar-meta-item flex-column align-items-start gap-1">
+                                            <div class="d-flex justify-content-between align-items-center w-100">
+                                                <span class="meta-label text-dark fw-bold" style="font-size: 12.5px;">
+                                                    {{ $cf->name }}
+                                                    @if($cf->is_required) <span class="text-danger">*</span> @endif
+                                                </span>
+                                                <span class="text-muted" style="font-size: 11px; font-family: monospace;">cf[{{ $cf->field_key }}]</span>
+                                            </div>
+
+                                            @if(!$canEdit)
+                                                <div class="text-dark small">
+                                                    @if($cf->field_type === 'checkbox')
+                                                        <span class="badge {{ $currentVal == '1' ? 'bg-success' : 'bg-light text-muted' }}">
+                                                            {{ $currentVal == '1' ? 'Có / Đạt' : 'Không' }}
+                                                        </span>
+                                                    @elseif($cf->field_type === 'url' && $currentVal)
+                                                        <a href="{{ $currentVal }}" target="_blank" class="text-primary text-truncate d-inline-block" style="max-width: 200px;">{{ $currentVal }}</a>
+                                                    @else
+                                                        {{ $currentVal ?: '-' }}
+                                                    @endif
+                                                </div>
+                                            @else
+                                                @if($cf->field_type === 'select')
+                                                    <select name="custom_fields[{{ $cf->field_key }}]" class="form-select form-select-sm" style="font-size: 12.5px;">
+                                                        <option value="">-- Chọn {{ $cf->name }} --</option>
+                                                        @foreach($cf->options ?? [] as $opt)
+                                                            <option value="{{ $opt }}" {{ $currentVal == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                @elseif($cf->field_type === 'checkbox')
+                                                    <div class="form-check mt-1">
+                                                        <input class="form-check-input" type="checkbox" name="custom_fields[{{ $cf->field_key }}]" value="1" id="cf_{{ $cf->id }}" {{ $currentVal == '1' ? 'checked' : '' }}>
+                                                        <label class="form-check-label small text-muted" for="cf_{{ $cf->id }}">Bật / Kích hoạt</label>
+                                                    </div>
+                                                @elseif($cf->field_type === 'date')
+                                                    <input type="date" name="custom_fields[{{ $cf->field_key }}]" class="form-control form-control-sm" style="font-size: 12.5px;" value="{{ $currentVal }}">
+                                                @elseif($cf->field_type === 'number')
+                                                    <input type="number" step="any" name="custom_fields[{{ $cf->field_key }}]" class="form-control form-control-sm" style="font-size: 12.5px;" value="{{ $currentVal }}" placeholder="Nhập số...">
+                                                @elseif($cf->field_type === 'url')
+                                                    <input type="url" name="custom_fields[{{ $cf->field_key }}]" class="form-control form-control-sm" style="font-size: 12.5px;" value="{{ $currentVal }}" placeholder="https://...">
+                                                @else
+                                                    <input type="text" name="custom_fields[{{ $cf->field_key }}]" class="form-control form-control-sm" style="font-size: 12.5px;" value="{{ $currentVal }}" placeholder="Nhập {{ $cf->name }}...">
+                                                @endif
+                                            @endif
+                                        </div>
+                                    @endforeach
+
+                                    @if($canEdit)
+                                        <div class="pt-2 text-end">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary" style="font-size: 12px; font-weight: 600;">
+                                                <i class="fa fa-save me-1"></i>Lưu trường tùy chỉnh
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- 5. Development (Git Integration) Card -->
                 @if($task->project_id)
                 @php
@@ -1019,6 +1253,13 @@ textarea#task-description-editor[style*="display:none"] {
         } else if (field === 'due_date') {
             document.getElementById('due-date-view-wrap').style.display = 'flex';
             document.getElementById('input-due-date').style.display = 'none';
+        }
+    }
+
+    function toggleAddLinkForm() {
+        var form = document.getElementById('add-link-form-wrap');
+        if (form) {
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
     }
 

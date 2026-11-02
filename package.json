@@ -1,7 +1,7 @@
 {
     "private": true,
     "scripts": {
-        "build": "vite build",
+        "build": "vite build && mkdir -p dist && cp -r public/* dist/ 2>/dev/null || true",
         "dev": "vite",
         "development": "vite build",
         "watch": "vite build --watch",
