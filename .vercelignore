@@ -1,3 +1,4 @@
+# Ignore dependencies and environment
 /node_modules
 /storage/*.key
 .env
@@ -5,3 +6,10 @@
 .git
 .github
 
+# Ignore Python & AI training files so Vercel does not trigger Python 'uv' builder
+requirements.txt
+AI/
+*.py
+*.ipynb
+*.csv
+*.jsonl
