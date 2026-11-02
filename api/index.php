@@ -5,6 +5,10 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
+// Force HTTPS in Vercel Serverless environment
+$_SERVER['HTTPS'] = 'on';
+$_SERVER['SERVER_PORT'] = 443;
+
 // Ensure writable directories in /tmp for serverless environment
 $dirs = [
     '/tmp/storage/app/public',
