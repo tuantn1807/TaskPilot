@@ -160,7 +160,8 @@ private
     1/ `app/Modules/Issues/Controllers/IssueController.php:25` — Controller gọi Repository trực tiếp, phải thông qua Handler.
     2/ `app/Modules/Issues/Handlers/CreateIssueHandler.php:42` — Khởi tạo Service bằng `new`, phải sử dụng constructor injection.
     3/ `app/Modules/Issues/Controllers/IssueController.php:18` — Public method thiếu PHPDoc.
-
+11. sử dụng use X/Y/Z;
+dưới Z .... không được sử dụng X\Y\Z:: ....  
 done (3 violations)
 
 Nếu không có violation:

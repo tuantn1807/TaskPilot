@@ -51,3 +51,5 @@ AI/dataset/*.csv
 # Backups & Large Binary Models
 .env.bak
 AI/models/
+/storage/logs/*
+!/storage/logs/.gitignore

@@ -68,6 +68,14 @@
                 <i class="fa fa-bar-chart"></i>
                 <span>Báo cáo</span>
             </a>
+            <a :href="`/projects/${project.id}/forecast`" class="pd-nav-item">
+                <i class="fa fa-line-chart"></i>
+                <span>Dự báo &amp; Phân tích AI</span>
+            </a>
+            <a :href="`/projects/${project.id}/meetings`" class="pd-nav-item">
+                <i class="fa fa-video-camera"></i>
+                <span>Cuộc họp</span>
+            </a>
         </div>
 
         <!-- KPI Metric Cards for Calendar -->

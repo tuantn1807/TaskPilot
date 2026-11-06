@@ -14,6 +14,7 @@
         str_starts_with($currentRoute, 'projects.documents') => 'documents',
         str_starts_with($currentRoute, 'projects.development') => 'development',
         str_starts_with($currentRoute, 'projects.reports') => 'reports',
+        str_starts_with($currentRoute, 'projects.forecast') => 'forecast',
         str_starts_with($currentRoute, 'meetings.') => 'meetings',
         default => '',
     };
@@ -76,6 +77,12 @@
     <a href="{{ route('projects.reports.show', $project) }}" class="pd-nav-item {{ $currentTab === 'reports' ? 'active' : '' }}">
         <i class="fa fa-bar-chart"></i>
         <span>Báo cáo</span>
+    </a>
+    @endif
+    @if(\Illuminate\Support\Facades\Route::has('projects.forecast.index'))
+    <a href="{{ route('projects.forecast.index', $project) }}" class="pd-nav-item {{ $currentTab === 'forecast' ? 'active' : '' }}">
+        <i class="fa fa-line-chart"></i>
+        <span>Dự báo &amp; Phân tích AI</span>
     </a>
     @endif
     <a href="{{ route('meetings.index', $project) }}" class="pd-nav-item {{ $currentTab === 'meetings' ? 'active' : '' }}">

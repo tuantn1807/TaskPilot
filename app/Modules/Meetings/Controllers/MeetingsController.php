@@ -37,11 +37,26 @@ class MeetingsController extends Controller
         return view('meetings.index', ['project' => $project, 'meetings' => $this->repository->accessibleFor(request()->user(), $project)]);
     }
 
-    public function store(Request $request, Project $project, CreateMeetingHandler $handler): JsonResponse
+    public function store(Request $request, Project $project, CreateMeetingHandler $handler)
     {
         abort_unless($this->access->can($request->user(), $project, MeetingAccessService::MANAGE), 403);
-        $data = $request->validate(['title' => ['required', 'string', 'max:255'], 'description' => ['nullable', 'string'], 'starts_at' => ['nullable', 'date']]);
-        return response()->json(['meeting' => $handler->handle($request->user(), $project, $data)], 201);
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'starts_at' => ['nullable', 'date'],
+            'platform' => ['nullable', 'string', 'in:taskpilot,google_meet,zoom,teams,offline,other'],
+            'meeting_link' => ['nullable', 'string', 'max:1000'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'passcode' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $meeting = $handler->handle($request->user(), $project, $data);
+
+        if ($request->wantsJson()) {
+            return response()->json(['meeting' => $meeting], 201);
+        }
+
+        return redirect()->route('meetings.show', $meeting)->with('success', 'Tạo cuộc họp thành công!');
     }
 
     public function show(Meeting $meeting): View

@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use ProjectsManager\Http\Controllers\Auth\ForgotPasswordController;
-use ProjectsManager\Http\Controllers\Auth\LoginController;
-use ProjectsManager\Http\Controllers\Auth\RegisterController;
 use ProjectsManager\Http\Controllers\Auth\ResetPasswordController;
 use ProjectsManager\Http\Controllers\Auth\SocialAuthController;
+use ProjectsManager\Modules\Auth\Controllers\LoginController;
+use ProjectsManager\Modules\Auth\Controllers\RegisterController;
 use ProjectsManager\Modules\Comments\Controllers\CommentsController;
 use ProjectsManager\Modules\Companies\Controllers\CompaniesController;
 use ProjectsManager\Modules\Home\Controllers\HomeController;
@@ -16,6 +16,7 @@ use ProjectsManager\Modules\Projects\Controllers\ProjectDocumentsController;
 use ProjectsManager\Modules\Projects\Controllers\ProjectFormsController;
 use ProjectsManager\Modules\Projects\Controllers\ProjectDevelopmentController;
 use ProjectsManager\Modules\Projects\Controllers\ProjectReportsController;
+use ProjectsManager\Modules\Projects\Controllers\ProjectForecastController;
 use ProjectsManager\Modules\Projects\Controllers\RetrospectivesController;
 use ProjectsManager\Modules\Projects\Controllers\CustomFieldsController;
 use ProjectsManager\Modules\Projects\Controllers\TqlController;
@@ -72,6 +73,9 @@ Route::middleware('auth')->group(function (): void {
     Route::get('projects/{project}/reports', [ProjectReportsController::class, 'show'])->name('projects.reports.show');
     Route::get('projects/{project}/reports/excel', [ProjectReportsController::class, 'excel'])->name('projects.reports.excel');
     Route::get('projects/{project}/reports/pdf', [ProjectReportsController::class, 'pdf'])->name('projects.reports.pdf');
+    Route::get('projects/{project}/forecast', [ProjectForecastController::class, 'index'])->name('projects.forecast.index');
+    Route::get('projects/{project}/forecast/csv', [ProjectForecastController::class, 'exportCsv'])->name('projects.forecast.csv');
+    Route::post('projects/{project}/forecast/reanalyze', [ProjectForecastController::class, 'reanalyze'])->name('projects.forecast.reanalyze');
     Route::get('projects/{project}/permissions', [ProjectsController::class, 'editPermissions'])->name('projects.permissions.index')->middleware('can.project:manage_project');
     Route::post('projects/{project}/permissions', [ProjectsController::class, 'storePermission'])->name('projects.permissions.store')->middleware('can.project:manage_project');
     Route::put('projects/{project}/permissions/{permission}', [ProjectsController::class, 'updatePermission'])->name('projects.permissions.update')->middleware('can.project:manage_project');
