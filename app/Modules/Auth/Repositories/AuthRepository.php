@@ -43,5 +43,47 @@ class AuthRepository
             'last_login_at' => now(),
         ]);
     }
+
+    /**
+     * Update user profile data.
+     *
+     * @param User $user
+     * @param array $data
+     *
+     * @return User
+     */
+    public function updateProfile(User $user, array $data): User
+    {
+        $user->update($data);
+
+        return $user->fresh();
+    }
+
+    /**
+     * Update user FCM push notification token.
+     *
+     * @param User $user
+     * @param string|null $fcmToken
+     *
+     * @return void
+     */
+    public function updateFcmToken(User $user, ?string $fcmToken): void
+    {
+        $user->update([
+            'fcm_token' => $fcmToken,
+        ]);
+    }
+
+    /**
+     * Find user by ID.
+     *
+     * @param int $id
+     *
+     * @return User|null
+     */
+    public function findById(int $id): ?User
+    {
+        return User::find($id);
+    }
 }
 

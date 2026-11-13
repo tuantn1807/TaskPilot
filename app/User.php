@@ -2,13 +2,16 @@
 
 namespace ProjectsManager;
 
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
+    use HasApiTokens;
+    use HasFactory;
     use Notifiable;
-    use \Illuminate\Database\Eloquent\Factories\HasFactory;
 
     protected static function newFactory(): \Database\Factories\UserFactory
     {
@@ -42,6 +45,7 @@ class User extends Authenticatable
         'timezone',
         'email_notifications',
         'in_app_notifications',
+        'fcm_token',
     ];
 
     /**
